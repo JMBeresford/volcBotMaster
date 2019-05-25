@@ -16,13 +16,10 @@ client = discord.Client()
 @client.event
 async def on_ready():
     """Start-up procedure"""
-    guilds = []
-    for guild in client.guilds:
-        guilds.append(guild)
 
     print('Successfully logged on to Discord as {0.user}'.format(client))
 
-    for guild in guilds:
+    for guild in client.guilds:
         print('\tAccessing server: ' + str(guild) + '\n')
 
 @client.event
