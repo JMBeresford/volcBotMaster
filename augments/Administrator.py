@@ -10,10 +10,8 @@ class Administrator(commands.Cog):
         self.admin_role = 'BotOfficer'
 
         for guild in self.client.guilds:
-            for role in guild.roles:
-                if str(role) == self.admin_role:
-                    self.admins[guild.id] = [member.id for member in role.members]
-                    break
+            self.admins[guild.id] = [member.id for member in guild.members
+                                     if self.admin_role in str(member.roles)]
 
         with open('data/admins.json', 'w+') as file:
             json.dump(self.admins, file)
@@ -23,23 +21,15 @@ class Administrator(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if self.admin_role in str(after.roles) and self.admin_role not in str(before.roles):
-            for guild in self.client.guilds:
-                for role in guild.roles:
-                    if str(role) == self.admin_role:
-                        self.admins[guild.id] = [member.id for member in role.members]
-                        break
+            self.admins[after.guild.id].append(after.id)
             print(f'{str(after)} has been appointed as an Administrator.')
-            with open('data/admins.json', 'w+') as file:
+            with open('data/admins.json', 'w') as file:
                 json.dump(self.admins, file)
 
         elif self.admin_role in str(before.roles) and self.admin_role not in str(after.roles):
-            for guild in self.client.guilds:
-                for role in guild.roles:
-                    if str(role) == self.admin_role:
-                        self.admins[guild.id] = [member.id for member in role.members]
-                        break
+            del self.admins[after.guild.id][self.admins[after.guild.id].index(after.id)]
             print(f'{str(after)} has been removed as an Administrator.')
-            with open('data/admins.json', 'w+') as file:
+            with open('data/admins.json', 'w') as file:
                 json.dump(self.admins, file)
 
         else:

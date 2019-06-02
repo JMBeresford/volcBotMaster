@@ -10,10 +10,8 @@ class Moderator(commands.Cog):
         self.mod_role = 'BotMechanic'
 
         for guild in self.client.guilds:
-            for role in guild.roles:
-                if str(role) == self.mod_role:
-                    self.mods[guild.id] = [member.id for member in role.members]
-                    break
+            self.mods[guild.id] = [member.id for member in guild.members
+                                   if self.mod_role in str(member.roles)]
 
         with open('data/mods.json', 'w+') as file:
             json.dump(self.mods, file)
@@ -23,24 +21,16 @@ class Moderator(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if self.mod_role in str(after.roles) and self.mod_role not in str(before.roles):
-            for guild in self.client.guilds:
-                for role in guild.roles:
-                    if str(role) == self.mod_role:
-                        self.mods[guild.id] = [member.id for member in role.members]
-                        break
+            self.mods[after.guild.id].append(after.id)
             print(f'{str(after)} has been appointed as a Moderator.')
 
-            with open('data/mods.json', 'w+') as file:
+            with open('data/mods.json', 'w') as file:
                 json.dump(self.mods, file)
 
         elif self.mod_role in str(before.roles) and self.mod_role not in str(after.roles):
-            for guild in self.client.guilds:
-                for role in guild.roles:
-                    if str(role) == self.mod_role:
-                        self.mods[guild.id] = [member.id for member in role.members]
-                        break
+            del self.mods[after.guild.id][self.mods[after.guild.id].index(after.id)]
             print(f'{str(after)} has been removed as a Moderator.')
-            with open('data/admins.json', 'w+') as file:
+            with open('data/admins.json', 'w') as file:
                 json.dump(self.mods, file)
 
         else:
@@ -49,12 +39,12 @@ class Moderator(commands.Cog):
     @commands.command()
     async def purge(self, ctx, amount, target: discord.Member):
         def target_acquired(msg):
-            return True if msg.author == target else False
+            return msg.author == target
 
-        message_murder = await ctx.message.channel.purge(limit=amount, check=target_acquired,
+        message_murder = await ctx.message.channel.purge(limit=int(amount), check=target_acquired,
                                                          before=ctx.message)
 
-        await ctx.send(f"Purged {len(message_murder)} of {target.name}'s messages.")
+        await ctx.send(f"Purged {len(message_murder)} of {target.mention}'s messages.")
 
     @commands.command()
     async def kick(self, ctx, target: discord.Member, *, because='because reasons'):
