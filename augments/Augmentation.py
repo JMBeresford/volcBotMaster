@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 import json
 import os
 
@@ -7,16 +7,16 @@ import os
 class Augmentation(commands.Cog):
     def __init__(self, client):
         self.client = client
-
-    default_augments = ['Administrator', 'Moderator', 'Augmentation']  # always-on augments
-    with open('data/user_augs.json', 'r') as f_obj:  # checks for predefined settings for non-default augments
-        user_augments = json.load(f_obj)
+        self.default_augments = ['Administrator', 'Moderator', 'Augmentation']  # always-on augments
+        with open('data/user_augs.json', 'r') as file:  # checks for predefined settings
+            self.user_augments = json.load(file)             # for non-default augments
+        print(f'\t\tLoaded Augmentation augments successfully.\n')
 
     async def is_default(self, aug):
         return True if aug in self.default_augments else False
 
     async def update_aug_persistence(self):
-        with open('data/user_augs.json', 'w') as file:
+        with open('data/user_augs.json', 'w+') as file:
             json.dump(self.user_augments, file)
 
     @commands.Cog.listener()
@@ -24,7 +24,6 @@ class Augmentation(commands.Cog):
         for aug, installed in self.user_augments.items():
             if installed:
                 self.client.load_extension(f'augments.{aug}')
-                print(f'\t\tLoaded {aug} augments successfully.\n')
 
         for filename in os.listdir('./augments'):
             if filename.endswith('.py'):
