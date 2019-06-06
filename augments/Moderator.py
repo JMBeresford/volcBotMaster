@@ -13,8 +13,8 @@ class Moderator(commands.Cog):
             self.mods[guild.id] = [member.id for member in guild.members
                                    if self.mod_role in str(member.roles)]
 
-        with open('data/mods.json', 'w+') as file:
-            json.dump(self.mods, file)
+            with open(f'data/{guild.id}/mods', 'w+') as file:
+                json.dump(self.mods, file)
 
         print(f'\t\tLoaded Moderator augments successfully.\n')
 

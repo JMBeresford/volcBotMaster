@@ -8,12 +8,13 @@ class Augmentation(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.default_augments = ['Administrator', 'Moderator', 'Augmentation']  # always-on augments
+
         with open('data/user_augs.json', 'r+') as file:  # checks for predefined settings
             self.user_augments = json.load(file)             # for non-default augments
         print(f'\t\tLoaded Augmentation augments successfully.\n')
 
     async def is_default(self, aug):
-        return True if aug in self.default_augments else False
+        return aug in self.default_augments
 
     async def update_aug_persistence(self):
         with open('data/user_augs.json', 'w') as file:

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import logging
 import json
+import os
 
 with open('token.json', 'r') as file:  # Takes bot token from file
     token = json.load(file)
@@ -13,7 +14,8 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 client = commands.Bot(command_prefix='?')
-def_augments = ['Administrator', 'Moderator', 'Augmentation']  # always-on augments
+def_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # always-on augments
+message_count = {}
 
 
 @client.event
@@ -23,6 +25,10 @@ async def on_ready():
 
     for guild in client.guilds:
         print(f'\tAccessing server: {guild}\n')
+        try:
+            os.mkdir(f'data/{guild.id}')
+        except FileExistsError:
+            pass
 
     for filename in def_augments:
         client.load_extension(f'augments.{filename}')

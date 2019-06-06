@@ -13,8 +13,8 @@ class Administrator(commands.Cog):
             self.admins[guild.id] = [member.id for member in guild.members
                                      if self.admin_role in str(member.roles)]
 
-        with open('data/admins.json', 'w+') as file:
-            json.dump(self.admins, file)
+            with open(f'data/{guild.id}/admins', 'w+') as file:
+                json.dump(self.admins, file)
 
         print(f'\t\tLoaded Administrator augments successfully.\n')
 
