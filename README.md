@@ -26,7 +26,8 @@
     
 ## Secondary Objectives:
 
-    I.      Maybe some fun stuff (think [!penis cog from twentysix26's bot](https://github.com/Twentysix26/Red-Cogs/blob/master/cogs/penis/penis.py))
+    I.      Maybe some fun stuff 
+> think !penis cog from [Twentysix26's bot](https://github.com/Twentysix26/26-Cogs)
     
         A.      !penis command
         
