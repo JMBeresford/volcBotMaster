@@ -5,6 +5,9 @@
 ### Expect jank and low efficiency all around :^)
 ### This Readme will be updated as I progress through the below Roadmap. Expect install instructions and reference documentation at an **_extremely_** slow pace, as I will have to rediscover my own efforts when I go back to document them.
 
+Business inquiries/if you want to yell at me for butchering this language:
+> email: jberesford@volcaus.com | discord: JBeresford#2604
+
 ## Prime Directives:
 
 1. Obtain Knowledge - 0% completion
@@ -49,11 +52,6 @@
 ## Tertiary Tasks:
 
 1. Have fun
-
-
-Business inquiries/if you want to yell at me for butchering this language:
-> email: jberesford@volcaus.com | discord: JBeresford#2604
-
 
 ## Roadmap:
 
