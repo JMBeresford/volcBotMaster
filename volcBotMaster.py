@@ -15,10 +15,9 @@ logger.addHandler(handler)
 
 client = commands.Bot(command_prefix='?')
 def_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # always-on augments
-message_count = {}
 
 
-@client.event
+@client.event()
 async def on_ready():
     """Start-up procedure"""
     print(f'Successfully logged on to Discord as {client.user}')
