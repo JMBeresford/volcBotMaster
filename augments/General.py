@@ -3,6 +3,8 @@ import os
 import discord
 from discord.ext import commands
 
+"""This augment contains most of the logic for obtaining user data and calculating server statistics"""
+
 
 class General(commands.Cog):
     def __init__(self, client):
@@ -57,7 +59,7 @@ class General(commands.Cog):
         message_count_sorted = sorted(self.message_count.items(), key=lambda kv: kv[1])
         message_count_sorted.reverse()
 
-        for chatter in message_count_sorted:
+        for chatter in message_count_sorted[0:9]:
             await ctx.send(f'{await self.id_to_name(chatter[0], ctx)}: {chatter[1]}')
 
 
