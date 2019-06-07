@@ -3,9 +3,9 @@
 
 ### This project was started as a means to learn python and working with data etc.
 ### Expect jank and low efficiency all around :^)
-### This Readme will be updated as I progress through the below Roadmap. Expect install instructions and reference documentation at an **__extremely__** slow pace, as I will have to rediscover my own efforts when I go back to document them.
+### This Readme will be updated as I progress through the below Roadmap. Expect install instructions and reference documentation at an **_extremely_** slow pace, as I will have to rediscover my own efforts when I go back to document them.
 
-## Main Objectives:
+## Prime Directives:
 
     I.      Obtain Knowledge - 0% completion
     
@@ -46,5 +46,27 @@
     
     [-1].   (try to) Maintain shit codebase
     
+## Tertiary Tasks:
+
+    I.      Have fun
+
+
 Business inquiries/if you want to yell at me for butchering this language:
 > email: jberesford@volcaus.com | discord: JBeresford#2604
+
+
+## Roadmap:
+
+    I.      Prime Directives <-- you are here
+    
+    II.     Documentation
+    
+        A.      Reference docs
+        
+        B.      Install instructions
+        
+        C.      etcetera?
+        
+    III.    Secondary Objectives
+    
+    IV.     Tertiary Tasks
