@@ -7,49 +7,48 @@
 
 ## Prime Directives:
 
-    I.      Obtain Knowledge - 0% completion
-    
-    II.     Keep all functionality modular on two levels - completion scales with project
-            
-        A.      Server-specific data for users
-   
-        B.      Modular source-code for development
-            
-    III.    Keep track of all user data for use in the following - ~75% completion
-    
-    IV.     Permissions system - ~50% completion
-    
-    V.      Provide visualizations of user data/server statistics - ~5% completion
-    
-    VI.     Server moderation Functionality - ~idk% completion
+1. Obtain Knowledge - 0% completion
+
+2. Keep all functionality modular on two levels - completion scales with project
+
+   - Server-specific data for users
+
+   - Modular source-code for development
+
+3. Keep track of all user data for use in the following - ~75% completion
+
+4. Permissions system - ~50% completion
+
+5. Provide visualizations of user data/server statistics - ~5% completion
+
+6. Server moderation Functionality - ~idk% completion
     
     
 ## Secondary Objectives:
 
-    I.      Maybe some fun stuff 
-> think !penis cog from [Twentysix26's bot](https://github.com/Twentysix26/26-Cogs)
+1. Maybe some fun stuff ( think !penis cog from [Twentysix26's bot](https://github.com/Twentysix26/26-Cogs) )
     
-        A.      !penis command
+   - !penis command
         
-        B.      !quote(s) - this one will happen
+   - !quote(s) - this one will happen
     
-    II.     Game??!
-    
-    III.    DDOS on @mention
-    
-    IV.     Interact with online data/API's
-    
-        A.      League of Legends comes to mind
-        
-        B.      Cryptocurrency pricing
-        
-    V.      Order delivery from #general (maybe store credit card info, unsure)
-    
-    [-1].   (try to) Maintain shit codebase
+2. Game??!
+
+3. DDOS on @mention
+
+4. Interact with online data/API's
+
+    - League of Legends comes to mind
+
+    - Cryptocurrency pricing
+
+5. Order delivery from #general (maybe store credit card info, unsure)
+
+[-1]. (try to) Maintain shit codebase
     
 ## Tertiary Tasks:
 
-    I.      Have fun
+1. Have fun
 
 
 Business inquiries/if you want to yell at me for butchering this language:
@@ -58,16 +57,16 @@ Business inquiries/if you want to yell at me for butchering this language:
 
 ## Roadmap:
 
-    I.      Prime Directives <-- you are here
-    
-    II.     Documentation
-    
-        A.      Reference docs
-        
-        B.      Install instructions
-        
-        C.      etcetera?
-        
-    III.    Secondary Objectives
-    
-    IV.     Tertiary Tasks
+1. Prime Directives <-- you are here
+
+2. Documentation
+
+   - Reference docs
+
+   - Install instructions
+
+   - etcetera?
+
+3. Secondary Objectives
+
+4. Tertiary Tasks
