@@ -59,18 +59,22 @@ async def on_guild_join(guild):
 async def on_command(ctx):
     guild = ctx.guild
 
-    mods = open(f'data/{guild.id}/mods')
-    admins = open(f'data/{guild.id}/admins')
+    mods = open(f'data/{guild.id}/mods', 'r')
+    admins = open(f'data/{guild.id}/admins', 'r')
     mod_cmds = open(f'data/{guild.id}/mod_commands', 'r')
     if ctx.command in mod_cmds:
         if ctx.author.id in mods or ctx.author.id in admins:
             admins.close()
             mods.close()
             return
-    else:
-        admins.close()
-        mods.close()
-        await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
+        else:
+            admins.close()
+            mods.close()
+            await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
+
+    admins.close()
+    mods.close()
+    mod_cmds.close()
 
 
 client.run(token)

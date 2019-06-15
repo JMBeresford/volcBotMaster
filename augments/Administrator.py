@@ -23,7 +23,6 @@ class Administrator(commands.Cog):
         print(f'\t\tLoaded Administrator augments successfully.\n')
 
     async def permission(self, ctx):
-        await ctx.send(ctx.author.roles)
         return self.admin_role in [role.name for role in ctx.author.roles]
 
     @commands.Cog.listener()
@@ -63,6 +62,19 @@ class Administrator(commands.Cog):
 
         await ctx.send('Shutting down... :wave:')
         await self.client.close()
+
+    @commands.command()
+    async def mod(self, ctx, target: discord.Member):
+        if not await self.permission(ctx):
+            await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
+            return
+
+        for role in ctx.guild.roles:
+            if str(role) is "BotMechanic":
+                mod_role_literal = role
+                await target.add_roles(mod_role_literal, reason=None, atomic=True)
+                await ctx.send(f'{ctx.author.mention} has been modded!')
+                break
 
 
 def setup(client):
