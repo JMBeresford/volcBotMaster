@@ -24,7 +24,7 @@ Business inquiries/if you want to yell at me for butchering this language:
 
 5. Provide visualizations of user data/server statistics - ~5% completion
 
-6. Server moderation Functionality - ~idk% completion
+6. Server moderation functionality - ~idk% completion
     
     
 ## Secondary Objectives:
@@ -47,7 +47,7 @@ Business inquiries/if you want to yell at me for butchering this language:
 
 5. Order delivery from #general (maybe store credit card info, unsure)
 
-[-1]. (try to) Maintain shit codebase
+[-1]. (try to) Maintain shit code
     
 ## Tertiary Tasks:
 

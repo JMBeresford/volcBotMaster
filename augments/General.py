@@ -50,6 +50,15 @@ class General(commands.Cog):
         await ctx.send(f'The admins for this server are: {admin_list}')
 
     @commands.command()
+    async def mods(self, ctx):
+        guild = ctx.guild
+
+        with open(f'data/{guild.id}/mods', 'r') as file:
+            mods = json.load(file)
+        mod_list = [member.mention for member in guild.members if member.id in mods[str(guild.id)]]
+        await ctx.send(f'The mods for this server are: {mod_list}')
+
+    @commands.command()
     async def top10(self, ctx):
         guild = ctx.guild
 
