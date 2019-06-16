@@ -1,9 +1,10 @@
 import json
+import sqlite3 as sql
 import os
 import discord
 from discord.ext import commands
 
-"""This augment contains most of the logic for obtaining user data and calculating server statistics"""
+"""This augment contains most of the logic for obtaining user/server data"""
 
 
 class General(commands.Cog):
@@ -12,14 +13,60 @@ class General(commands.Cog):
         self.message_count = {}
 
         for guild in self.client.guilds:
-            if not os.path.exists(f'data/{guild.id}/message_count'):
-                for member in guild.members:
-                    self.message_count[str(member.id)] = 0
+            mods = [member for member in guild.members if 'BotMechanic' in [role.name for role in member.roles]]
+            admins = [member for member in guild.members if 'BotOfficer' in [role.name for role in member.roles]]
+            conn = sql.connect(f'data/{guild.id}/users.db')
+            cursor = conn.cursor()
 
-                with open(f'data/{guild.id}/message_count', 'w+') as file:
-                    json.dump(self.message_count, file)
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS members (
+                    id integer PRIMARY KEY,
+                    name text,
+                    message_count integer,
+                    join_date text
+            );
+            ''')
 
-                self.message_count = {}
+            for member in guild.members:
+                info = (member.id, str(member), 0, member.joined_at)
+                try:
+                    cursor.execute('''INSERT INTO members(id, name, message_count, join_date)
+                                   VALUES(?,?,?,?)''', info)
+                except sql.IntegrityError:
+                    pass
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS moderators (
+                    id integer PRIMARY KEY,
+                    name text
+            );
+            ''')
+
+            for mod in mods:
+                info = (mod.id, mod.name)
+                try:
+                    cursor.execute('''INSERT INTO moderators(id, name)
+                                                   VALUES(?,?)''', info)
+                except sql.IntegrityError:
+                    pass
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS administrators (
+                    id integer PRIMARY KEY,
+                    name text
+            );
+            ''')
+
+            for admin in admins:
+                info = (admin.id, admin.name)
+                try:
+                    cursor.execute('''INSERT INTO administrators(id, name)
+                                   VALUES(?,?)''', info)
+                except sql.IntegrityError:
+                    pass
+
+            conn.commit()
+            conn.close()
 
         print(f'\t\tLoaded General augments successfully.\n')
 
@@ -29,25 +76,57 @@ class General(commands.Cog):
                 return str(member)
 
     @commands.Cog.listener()
+    async def on_member_join(self, member):
+        conn = sql.connect(f'data/{member.guild.id}/users.db')
+        cursor = conn.cursor()
+
+        info = (member.id, str(member), 0, member.joined_at)
+
+        try:
+            cursor.execute('''INSERT INTO members(id, name, message_count, join_date)
+                           VALUES(?,?,?,?)''', info)
+            conn.commit()
+        except sql.IntegrityError:
+            conn.rollback()
+            pass
+        finally:
+            conn.close()
+
+    @commands.Cog.listener()
     async def on_message(self, ctx):
-        with open(f'data/{ctx.guild.id}/message_count', 'r') as file:
-            self.message_count = json.load(file)
+        conn = sql.connect(f'data/{ctx.guild.id}/users.db')
+        cursor = conn.cursor()
 
-        self.message_count[str(ctx.author.id)] = self.message_count[str(ctx.author.id)] + 1
+        info = (ctx.author.id,)
 
-        with open(f'data/{ctx.guild.id}/message_count', 'w') as file:
-            json.dump(self.message_count, file)
+        cursor.execute("SELECT message_count, id FROM members WHERE id=?", info)
+        data = cursor.fetchone()
 
-        self.message_count = {}
+        data = (data[0]+1, data[1])
+
+        cursor.execute("UPDATE members SET message_count=? WHERE id=?", data)
+
+        conn.commit()
+        conn.close()
 
     @commands.command()
     async def admins(self, ctx):
         guild = ctx.guild
+        conn = sql.connect(f'data/{guild.id}/users.db')
+        cursor = conn.cursor()
 
-        with open(f'data/{guild.id}/admins') as file:
-            admins = json.load(file)
-        admin_list = [member.mention for member in guild.members if member.id in admins[str(guild.id)]]
-        await ctx.send(f'The admins for this server are: {admin_list}')
+        cursor.execute("SELECT id FROM administrators")
+        data = cursor.fetchall()  # will return a list of tuples that only hold one element
+        data = [admin_id[0] for admin_id in data]  # Makes a list of tuples that holds only one element just a list
+        admin_list = [await self.id_to_name(admin_id, ctx) for admin_id in data]
+
+        conn.close()
+
+        msg = "The admins for this server are:\n"
+        for admin in admin_list:
+            msg = f'{msg}{admin}\n'
+
+        await ctx.send(msg)
 
     @commands.command()
     async def mods(self, ctx):

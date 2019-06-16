@@ -12,10 +12,23 @@ import os
 class Augmentation(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.default_augments = ['Administrator', 'Moderator', 'Augmentation']  # always-on augments
+        self.default_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # always-on augments
 
         with open('data/user_augs.json', 'r+') as file:  # checks for predefined settings
             self.user_augments = json.load(file)             # for non-default augments
+
+        for aug, installed in self.user_augments.items():
+            if installed:
+                self.client.load_extension(f'augments.{aug}')
+                print(f'\t\tLoaded {aug} user augments successfully.\n')
+
+        for filename in os.listdir('./augments'):
+            if filename.endswith('.py'):
+                if filename[:-3] not in self.user_augments.keys():
+                    if filename[:-3] not in self.default_augments:
+                        self.user_augments[filename] = 0
+                        print(f'New augments installed: {filename[:-3]}')
+
         print(f'\t\tLoaded Augmentation augments successfully.\n')
 
     async def is_default(self, aug):
@@ -24,19 +37,6 @@ class Augmentation(commands.Cog):
     async def update_aug_persistence(self):
         with open('data/user_augs.json', 'w') as file:
             json.dump(self.user_augments, file)
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        for aug, installed in self.user_augments.items():
-            if installed:
-                self.client.load_extension(f'augments.{aug}')
-
-        for filename in os.listdir('./augments'):
-            if filename.endswith('.py'):
-                if filename[:-3] not in self.user_augments.keys():
-                    if not await self.is_default(filename[:-3]):
-                        self.user_augments[filename] = 0
-                        print(f'New augments installed: {filename[:-3]}')
 
     @commands.command()
     async def augment(self, ctx, aug):
