@@ -1,6 +1,6 @@
 import json
+from datetime import datetime
 import sqlite3 as sql
-import os
 import discord
 from discord.ext import commands
 
@@ -15,7 +15,7 @@ class General(commands.Cog):
         for guild in self.client.guilds:
             mods = [member for member in guild.members if 'BotMechanic' in [role.name for role in member.roles]]
             admins = [member for member in guild.members if 'BotOfficer' in [role.name for role in member.roles]]
-            conn = sql.connect(f'data/{guild.id}/users.db')
+            conn = sql.connect(f'data/{guild.id}/stats.db')
             cursor = conn.cursor()
 
             cursor.execute('''
@@ -24,6 +24,14 @@ class General(commands.Cog):
                     name text,
                     message_count integer,
                     join_date text
+            );
+            ''')
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS activity (
+                    year integer,
+                    month integer,
+                    day integer
             );
             ''')
 
@@ -77,7 +85,7 @@ class General(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        conn = sql.connect(f'data/{member.guild.id}/users.db')
+        conn = sql.connect(f'data/{member.guild.id}/stats.db')
         cursor = conn.cursor()
 
         info = (member.id, str(member), 0, member.joined_at)
@@ -94,7 +102,8 @@ class General(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        conn = sql.connect(f'data/{ctx.guild.id}/users.db')
+        msg_date = ctx.created_at
+        conn = sql.connect(f'data/{ctx.guild.id}/stats.db')
         cursor = conn.cursor()
 
         info = (ctx.author.id,)
@@ -106,13 +115,17 @@ class General(commands.Cog):
 
         cursor.execute("UPDATE members SET message_count=? WHERE id=?", data)
 
+        date = (msg_date.year, msg_date.month, msg_date.day)
+
+        cursor.execute("INSERT INTO activity(year, month, day) VALUES(?,?,?)", date)
+
         conn.commit()
         conn.close()
 
     @commands.command()
     async def admins(self, ctx):
         guild = ctx.guild
-        conn = sql.connect(f'data/{guild.id}/users.db')
+        conn = sql.connect(f'data/{guild.id}/stats.db')
         cursor = conn.cursor()
 
         cursor.execute("SELECT id FROM administrators")
