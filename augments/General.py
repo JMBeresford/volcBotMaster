@@ -13,8 +13,10 @@ class General(commands.Cog):
         self.message_count = {}
 
         for guild in self.client.guilds:
-            mods = [member for member in guild.members if 'BotMechanic' in [role.name for role in member.roles]]
-            admins = [member for member in guild.members if 'BotOfficer' in [role.name for role in member.roles]]
+            mods = [member for member in guild.members
+                    if 'BotMechanic' in [role.name for role in member.roles]]
+            admins = [member for member in guild.members
+                      if 'BotOfficer' in [role.name for role in member.roles]]
             conn = sql.connect(f'data/{guild.id}/stats.db')
             cursor = conn.cursor()
 
@@ -144,11 +146,21 @@ class General(commands.Cog):
     @commands.command()
     async def mods(self, ctx):
         guild = ctx.guild
+        conn = sql.connect(f'data/{guild.id}/stats.db')
+        cursor = conn.cursor()
 
-        with open(f'data/{guild.id}/mods', 'r') as file:
-            mods = json.load(file)
-        mod_list = [member.mention for member in guild.members if member.id in mods[str(guild.id)]]
-        await ctx.send(f'The mods for this server are: {mod_list}')
+        cursor.execute("SELECT id FROM moderators")
+        data = cursor.fetchall()  # will return a list of tuples that only hold one element
+        data = [mod_id[0] for mod_id in data]  # Makes a list of tuples that holds only one element just a list
+        mod_list = [await self.id_to_name(mod_id, ctx) for mod_id in data]
+
+        conn.close()
+
+        msg = "The mods for this server are:\n"
+        for mod in mod_list:
+            msg = f'{msg}{mod}\n'
+
+        await ctx.send(msg)
 
     @commands.command()
     async def top10(self, ctx):
