@@ -1,4 +1,5 @@
 import discord
+import sqlite3 as sql
 from discord.ext import commands
 import json
 
@@ -11,14 +12,26 @@ class Administrator(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.admins = []
+        self.admin_commands = ['ban', 'die', 'mod']
         self.admin_role = 'BotOfficer'  # Make this interchangeable
 
         for guild in self.client.guilds:
-            self.admins = [member.id for member in guild.members
-                           if self.admin_role in str(member.roles)]
+            with sql.connect(f'data/{guild.id}/stats.db') as conn:
+                cursor = conn.cursor()
 
-            with open(f'data/{guild.id}/admins', 'w+') as file:
-                json.dump(self.admins, file)
+                cursor.execute('''CREATE TABLE IF NOT EXISTS commands (
+                    command text PRIMARY KEY,
+                    clearance text
+                );
+                ''')
+
+                try:
+                    for command in self.admin_commands:
+                        data = (command, 'administrator')
+                        cursor.execute("INSERT INTO commands(command, clearance)"
+                                       "VALUES(?,?)", data)
+                except sql.IntegrityError:
+                    pass
 
         print(f'\t\tLoaded Administrator augments successfully.\n')
 
@@ -28,18 +41,19 @@ class Administrator(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if self.admin_role in str(after.roles) and self.admin_role not in str(before.roles):
-            self.admins = [member.id for member in after.guild.members
-                           if self.admin_role in str(member.roles)]
-            print(f'{str(after)} has been appointed as an Administrator.')
-            with open(f'data/{after.guild.id}/admins', 'w') as file:
-                json.dump(self.admins, file)
+            with sql.connect(f'data/{after.guild.id}/stats.db') as conn:
+                cursor = conn.cursor()
+                data = (after.id, str(after))
+                cursor.execute("INSERT INTO administrators(id, name)"
+                               "VALUES(?,?)", data)
+            print(f'{str(after)} has been appointed as a Administrator.')
 
         elif self.admin_role in str(before.roles) and self.admin_role not in str(after.roles):
-            self.admins = [member.id for member in after.guild.members
-                           if self.admin_role in str(member.roles)]
-            print(f'{str(after)} has been removed as an Administrator.')
-            with open(f'data/{after.guild.id}/admins', 'w') as file:
-                json.dump(self.admins, file)
+            with sql.connect(f'data/{after.guild.id}/stats.db') as conn:
+                cursor = conn.cursor()
+                data = (after.id,)
+                cursor.execute("DELETE FROM administrators WHERE id=?", data)
+            print(f'{str(after)} has been removed as a Administrator.')
 
         else:
             pass
@@ -64,15 +78,14 @@ class Administrator(commands.Cog):
         await self.client.close()
 
     @commands.command()
-    async def mod(self, ctx, target: discord.Member):
+    async def mod(self, ctx, target: discord.Member):  # broken currently
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
 
         for role in ctx.guild.roles:
             if str(role) is "BotMechanic":
-                mod_role_literal = role
-                await target.add_roles(mod_role_literal, reason=None, atomic=True)
+                await target.add_roles(role, reason=None, atomic=True)
                 await ctx.send(f'{ctx.author.mention} has been modded!')
                 break
 

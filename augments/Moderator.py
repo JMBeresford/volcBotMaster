@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import json
 import sqlite3 as sql
 
 """This augment contains all basic moderator+ commands. Global permission system that can be
@@ -16,22 +15,22 @@ class Moderator(commands.Cog):
         self.mod_role = 'BotMechanic'  # Make this interchangeable
 
         for guild in self.client.guilds:
-            conn = sql.connect(f"data/{guild.id}/stats.db")
-            cursor = conn.cursor()
+            with sql.connect(f'data/{guild.id}/stats.db') as conn:
+                cursor = conn.cursor()
 
-            cursor.execute('''CREATE TABLE IF NOT EXISTS commands (
-                command text PRIMARY KEY,
-                clearance text
-            );
-            ''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS commands (
+                    command text PRIMARY KEY,
+                    clearance text
+                );
+                ''')
 
-            try:
-                for command in self.mod_commands:
-                    data = (command, 'moderator')
-                    cursor.execute("INSERT INTO commands(command, clearance)"
-                                   "VALUES(?,?)", data)
-            except sql.IntegrityError:
-                pass
+                try:
+                    for command in self.mod_commands:
+                        data = (command, 'moderator')
+                        cursor.execute("INSERT INTO commands(command, clearance)"
+                                       "VALUES(?,?)", data)
+                except sql.IntegrityError:
+                    pass
 
         print(f'\t\tLoaded Moderator augments successfully.\n')
 

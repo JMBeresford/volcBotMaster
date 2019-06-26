@@ -1,7 +1,5 @@
-import json
-from datetime import datetime
+from operator import itemgetter
 import sqlite3 as sql
-import discord
 from discord.ext import commands
 
 """This augment contains most of the logic for obtaining user/server data"""
@@ -84,6 +82,7 @@ class General(commands.Cog):
         for member in ctx.guild.members:
             if member.id == int(member_id):
                 return str(member)
+        return 'User Not Found'
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -127,53 +126,56 @@ class General(commands.Cog):
     @commands.command()
     async def admins(self, ctx):
         guild = ctx.guild
-        conn = sql.connect(f'data/{guild.id}/stats.db')
-        cursor = conn.cursor()
 
-        cursor.execute("SELECT id FROM administrators")
-        data = cursor.fetchall()  # will return a list of tuples that only hold one element
-        data = [admin_id[0] for admin_id in data]  # Makes a list of tuples that holds only one element just a list
-        admin_list = [await self.id_to_name(admin_id, ctx) for admin_id in data]
+        with sql.connect(f'data/{guild.id}/stats.db') as conn:
+            cursor = conn.cursor()
 
-        conn.close()
+            cursor.execute("SELECT id FROM administrators")
 
-        msg = "The admins for this server are:\n"
-        for admin in admin_list:
-            msg = f'{msg}{admin}\n'
+            data = cursor.fetchall()  # will return a list of tuples that only hold one element
+            data = [admin_id[0] for admin_id in data]  # Makes a list of tuples that holds only one element just a list
+            admin_list = [await self.id_to_name(admin_id, ctx) for admin_id in data]
 
-        await ctx.send(msg)
+            msg = "The admins for this server are:\n"
+            for admin in admin_list:
+                msg = f'{msg}{admin}\n'
+
+            await ctx.send(msg)
 
     @commands.command()
     async def mods(self, ctx):
         guild = ctx.guild
-        conn = sql.connect(f'data/{guild.id}/stats.db')
-        cursor = conn.cursor()
 
-        cursor.execute("SELECT id FROM moderators")
-        data = cursor.fetchall()  # will return a list of tuples that only hold one element
-        data = [mod_id[0] for mod_id in data]  # Makes a list of tuples that holds only one element just a list
-        mod_list = [await self.id_to_name(mod_id, ctx) for mod_id in data]
+        with sql.connect(f'data/{guild.id}/stats.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM moderators")
 
-        conn.close()
+            data = cursor.fetchall()  # will return a list of tuples that only hold one element
+            data = [mod_id[0] for mod_id in data]  # Makes a list of tuples that holds only one element just a list
+            mod_list = [await self.id_to_name(mod_id, ctx) for mod_id in data]
 
-        msg = "The mods for this server are:\n"
-        for mod in mod_list:
-            msg = f'{msg}{mod}\n'
+            msg = "The mods for this server are:\n"
+            for mod in mod_list:
+                msg = f'{msg}{mod}\n'
 
-        await ctx.send(msg)
+            await ctx.send(msg)
 
     @commands.command()
-    async def top10(self, ctx):
+    async def top10(self, ctx):  # Will be transitioned to a graph at some point
         guild = ctx.guild
 
-        with open(f'data/{guild.id}/message_count') as file:
-            self.message_count = json.load(file)
+        with sql.connect(f'data/{guild.id}/stats.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, message_count FROM members")
 
-        message_count_sorted = sorted(self.message_count.items(), key=lambda kv: kv[1])
-        message_count_sorted.reverse()
+            data = sorted(cursor.fetchall(), key=itemgetter(1))
+            data.reverse()
 
-        for chatter in message_count_sorted[0:9]:
-            await ctx.send(f'{await self.id_to_name(chatter[0], ctx)}: {chatter[1]}')
+            msg = 'The top 10 chatters in this server are:\n'
+            for entry in data[0:9]:
+                msg = f'{msg}{await self.id_to_name(entry[0], ctx)}\n'
+
+            await ctx.send(msg)
 
 
 def setup(client):
