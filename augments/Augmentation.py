@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 import json
 import os
@@ -19,8 +18,12 @@ class Augmentation(commands.Cog):
 
         for aug, installed in self.user_augments.items():
             if installed:
-                self.client.load_extension(f'augments.{aug}')
-                print(f'\t\tLoaded {aug} user augments successfully.\n')
+                try:
+                    self.client.load_extension(f'augments.{aug}')
+                except commands.ExtensionAlreadyLoaded:
+                    pass
+                else:
+                    print(f'\t\tLoaded {aug} user augments successfully.\n')
 
         for filename in os.listdir('./augments'):
             if filename.endswith('.py'):
@@ -40,20 +43,30 @@ class Augmentation(commands.Cog):
 
     @commands.command()
     async def augment(self, ctx, aug):
-        self.client.load_extension(f'augments.{aug}')
-        self.user_augments[aug] = 1
-        await self.update_aug_persistence()
-        await ctx.send(f'I have loaded {aug} augments.')
+        try:
+            self.client.load_extension(f'augments.{aug}')
+        except commands.ExtensionNotFound:
+            await ctx.send(f"I could not find any '{aug}' augments. Check you're spelling? :smirk:")
+        except commands.ExtensionAlreadyLoaded:
+            await ctx.send(f"The '{aug}' augments are already loaded, genius.")
+        else:
+            await ctx.send(f'I have loaded {aug} augments.')
+            self.user_augments[aug] = 1
+            await self.update_aug_persistence()
 
     @commands.command()
     async def deaugment(self, ctx, aug):
         if await self.is_default(aug):
             await ctx.send(f'{aug} augments cannot be unloaded.')
         else:
-            self.user_augments[aug] = 0
-            await self.update_aug_persistence()
-            self.client.unload_extension(f'augments.{aug}')
-            await ctx.send(f'I have unloaded {aug} augments.')
+            try:
+                self.client.unload_extension(f'augments.{aug}')
+            except commands.ExtensionNotLoaded:
+                await ctx.send(f"There are no '{aug}' augments loaded.")
+            else:
+                self.user_augments[aug] = 0
+                await self.update_aug_persistence()
+                await ctx.send(f'I have unloaded {aug} augments.')
 
 
 def setup(client):

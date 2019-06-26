@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import sqlite3 as sql
 import logging
 import json
 import os
@@ -15,6 +16,9 @@ logger.addHandler(handler)
 
 client = commands.Bot(command_prefix='?')
 def_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # default augments
+client.owner_id = 174439608577294336
+mod_role = "BotMechanic"
+admin_role = "BotOfficer"
 
 
 async def new_guild(guild, startup=True):
@@ -30,7 +34,7 @@ async def new_guild(guild, startup=True):
 
 @client.command()
 async def reload(ctx):
-    if ctx.author is not client.application_info():
+    if not await client.is_owner(ctx.author):
         await ctx.send(f'Only the bot owner can do that, {ctx.author.mention}')
     else:
         for filename in def_augments:
@@ -56,25 +60,30 @@ async def on_guild_join(guild):
 
 
 @client.event
-async def on_command(ctx):
+async def on_command(ctx):  # permissions check
     guild = ctx.guild
 
-    mods = open(f'data/{guild.id}/mods', 'r')
-    admins = open(f'data/{guild.id}/admins', 'r')
-    mod_cmds = open(f'data/{guild.id}/mod_commands', 'r')
-    if ctx.command in mod_cmds:
-        if ctx.author.id in mods or ctx.author.id in admins:
-            admins.close()
-            mods.close()
-            return
-        else:
-            admins.close()
-            mods.close()
-            await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
+    with sql.connect(f'data/{guild.id}/stats.db') as conn:
+        cursor = conn.cursor()
 
-    admins.close()
-    mods.close()
-    mod_cmds.close()
+        cursor.execute("SELECT command, clearance FROM commands")
+        data = cursor.fetchone()
+        command_list = zip(data[0], data[1])
+
+        if command_list is [] or ctx.command not in command_list:
+            return
+        elif command_list[ctx.command] is 'moderator':
+            if mod_role not in [str(role) for role in ctx.author.roles]:
+                ctx.send('You do not have permission to use that command.')
+            else:
+                return
+        elif command_list[ctx.command] is 'administrator':
+            if admin_role not in [str(role) for role in ctx.author.roles]:
+                ctx.send('You do not have permission to use that command.')
+            else:
+                return
+        else:
+            pass
 
 
 client.run(token)

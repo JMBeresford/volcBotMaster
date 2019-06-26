@@ -58,15 +58,17 @@ class Moderator(commands.Cog):
             pass
 
     @commands.command()
-    async def purge(self, ctx, amount, target: discord.Member):
+    async def purge(self, ctx, amount: int, target: discord.Member):
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
+        elif amount > 15:
+            await ctx.send(f'I can only purge up to 15 messages back, and {amount} is more than 15.')
 
         def target_acquired(msg):   # replace with lambda expression in check below
             return msg.author == target
 
-        message_murder = await ctx.message.channel.purge(limit=int(amount), check=target_acquired,
+        message_murder = await ctx.message.channel.purge(limit=amount, check=target_acquired,
                                                          before=ctx.message)
 
         await ctx.send(f"Purged {len(message_murder)} of {target.mention}'s messages.")

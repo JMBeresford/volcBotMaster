@@ -1,9 +1,8 @@
 import discord
 import sqlite3 as sql
 from discord.ext import commands
-import json
 
-"""This augment contains all basic administrator+ commands. Global permission system that can be
+"""This augment contains all basic administrator commands. Global permission system that can be
    configured client-side is planned in anticipation of user-created cogs. Server-specific
    lists of administrators are kept in the data/{server_id} directories respective to each server."""
 
@@ -11,7 +10,6 @@ import json
 class Administrator(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.admins = []
         self.admin_commands = ['ban', 'die', 'mod']
         self.admin_role = 'BotOfficer'  # Make this interchangeable
 
@@ -85,8 +83,8 @@ class Administrator(commands.Cog):
 
         for role in ctx.guild.roles:
             if str(role) is "BotMechanic":
-                await target.add_roles(role, reason=None, atomic=True)
-                await ctx.send(f'{ctx.author.mention} has been modded!')
+                await target.add_roles(role.id, reason=None, atomic=True)
+                await ctx.send(f'{target.mention} has been modded!')
                 break
 
 
