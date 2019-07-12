@@ -29,9 +29,7 @@ class General(commands.Cog):
 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS activity (
-                    year integer,
-                    month integer,
-                    day integer
+                    datetime text
             );
             ''')
 
@@ -116,9 +114,7 @@ class General(commands.Cog):
 
         cursor.execute("UPDATE members SET message_count=? WHERE id=?", data)
 
-        date = (msg_date.year, msg_date.month, msg_date.day)
-
-        cursor.execute("INSERT INTO activity(year, month, day) VALUES(?,?,?)", date)
+        cursor.execute("INSERT INTO activity(datetime) VALUES(?)", msg_date.iso_format)
 
         conn.commit()
         conn.close()
