@@ -114,7 +114,7 @@ class General(commands.Cog):
 
         cursor.execute("UPDATE members SET message_count=? WHERE id=?", data)
 
-        cursor.execute("INSERT INTO activity(datetime) VALUES(?)", msg_date.iso_format)
+        cursor.execute("INSERT INTO activity(datetime) VALUES(?)", (msg_date.isoformat(),))
 
         conn.commit()
         conn.close()
