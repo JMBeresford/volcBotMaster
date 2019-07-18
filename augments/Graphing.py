@@ -16,11 +16,11 @@ class Graphing(commands.Cog):
 
         with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT datetime FROM activity WHERE DATE(datetime)"
+            cursor.execute("SELECT datetime FROM activity WHERE DATE(datetime)"  # querying the db for datetime objects
                            " BETWEEN DATE('now','-7 day') AND DATE('now')")
 
-            dated_messages = [date_time for date_time in cursor]
-            dated_messages = [date.fromisoformat(tup[0])
+            dated_messages = [date_time for date_time in cursor]  # Sqlite returns list of tuples
+            dated_messages = [date.fromisoformat(tup[0])          # thus these hoops we jump through
                               for tup in dated_messages]
 
         conn.close()

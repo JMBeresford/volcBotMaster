@@ -1,5 +1,6 @@
 from operator import itemgetter
 import sqlite3 as sql
+from datetime import datetime
 from discord.ext import commands
 
 """This augment contains most of the logic for obtaining user/server data"""
@@ -101,7 +102,7 @@ class General(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        msg_date = ctx.created_at
+        msg_date = datetime.today()
         conn = sql.connect(f'data/{ctx.guild.id}/stats.db')
         cursor = conn.cursor()
 
