@@ -1,9 +1,9 @@
 # volcBotMaster
-## ~~Shitty~~ discord bot with zero aspirations but infinite potential
+## ~~Useless~~ discord bot with zero aspirations but infinite potential
 
 ### This project was started as a means to learn python and working with data etc.
 ### Expect jank and low efficiency all around :^)
-### This Readme will be updated as I progress through the below Roadmap. Expect install instructions and reference documentation at an **_extremely_** slow pace, as I will have to rediscover my own efforts when I go back to document them.
+### This Readme will be updated as I progress through the below Roadmap. Expect install instructions and reference documentation at an **_extremely_** slow pace, as I will have to rediscover my own efforts as I go back to document them.
 
 Business inquiries/if you want to yell at me for butchering this language:
 > email: jberesford@volcaus.com | discord: JBeresford#2604
@@ -47,7 +47,7 @@ Business inquiries/if you want to yell at me for butchering this language:
 
 5. Order delivery from #general (maybe store credit card info, unsure)
 
-[-1]. (try to) Maintain shit code
+[-1]. (try to) Maintain poorly written code
     
 ## Tertiary Tasks:
 
