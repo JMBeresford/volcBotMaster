@@ -63,7 +63,7 @@ class Graphing(commands.Cog):
         data.reverse()
         users = [await self.id_to_member(user[0], ctx) for user in data[0:10]]
         names = [user.name for user in users]
-        msg_count = [user[1] for user in data]
+        msg_count = [user[1] for user in data[0:10]]
         conn.commit()
         conn.close()
 
