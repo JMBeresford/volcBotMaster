@@ -138,6 +138,8 @@ class General(commands.Cog):
 
             await ctx.send(msg)
 
+        conn.close()
+
     @commands.command()
     async def mods(self, ctx):
         guild = ctx.guild
@@ -156,6 +158,8 @@ class General(commands.Cog):
 
             await ctx.send(msg)
 
+        conn.close()
+
     @commands.command()
     async def top10(self, ctx):  # Will be transitioned to a graph at some point
         guild = ctx.guild
@@ -172,6 +176,8 @@ class General(commands.Cog):
                 msg = f'{msg}{await self.id_to_name(entry[0], ctx)}\n'
 
             await ctx.send(msg)
+
+        conn.close()
 
 
 def setup(client):

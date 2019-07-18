@@ -84,5 +84,7 @@ async def on_command(ctx):  # permissions check
         else:
             pass
 
+    conn.close()
+
 
 client.run(token)

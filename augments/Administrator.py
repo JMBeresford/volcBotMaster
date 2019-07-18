@@ -31,6 +31,8 @@ class Administrator(commands.Cog):
                 except sql.IntegrityError:
                     pass
 
+            conn.close()
+
         print(f'\t\tLoaded Administrator augments successfully.\n')
 
     async def permission(self, ctx):
@@ -44,6 +46,7 @@ class Administrator(commands.Cog):
                 data = (after.id, str(after))
                 cursor.execute("INSERT INTO administrators(id, name)"
                                "VALUES(?,?)", data)
+            conn.close()
             print(f'{str(after)} has been appointed as a Administrator.')
 
         elif self.admin_role in str(before.roles) and self.admin_role not in str(after.roles):
@@ -51,6 +54,8 @@ class Administrator(commands.Cog):
                 cursor = conn.cursor()
                 data = (after.id,)
                 cursor.execute("DELETE FROM administrators WHERE id=?", data)
+
+            conn.close()
             print(f'{str(after)} has been removed as a Administrator.')
 
         else:

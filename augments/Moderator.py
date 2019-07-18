@@ -32,6 +32,8 @@ class Moderator(commands.Cog):
                 except sql.IntegrityError:
                     pass
 
+            conn.close()
+
         print(f'\t\tLoaded Moderator augments successfully.\n')
 
     async def permission(self, ctx):
@@ -45,6 +47,8 @@ class Moderator(commands.Cog):
                 data = (after.id, str(after))
                 cursor.execute("INSERT INTO moderators(id, name)"
                                "VALUES(?,?)", data)
+
+            conn.close()
             print(f'{str(after)} has been appointed as a Moderator.')
 
         elif self.mod_role in str(before.roles) and self.mod_role not in str(after.roles):
@@ -52,6 +56,8 @@ class Moderator(commands.Cog):
                 cursor = conn.cursor()
                 data = (after.id,)
                 cursor.execute("DELETE FROM moderators WHERE id=?", data)
+
+            conn.close()
             print(f'{str(after)} has been removed as a Moderator.')
 
         else:
@@ -95,6 +101,7 @@ class Moderator(commands.Cog):
             cursor.execute("INSERT INTO commands(command, clearance)"
                            "VAlUES(?,?)", data)
 
+        conn.close()
         await ctx.send(f'The command, {command}, can now only be used by {self.mod_role}s')
 
 
