@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from operator import itemgetter
 
+"""The logic for graphing is all implemented here"""
+
 
 class Graphing(commands.Cog):
     def __init__(self, client):
@@ -69,14 +71,14 @@ class Graphing(commands.Cog):
 
         x_axis = np.arange(len(names))
         fig, ax = plt.subplots()
+        ax.grid(axis='y')
         ax.bar(x_axis, msg_count, bar_width)
         ax.set_ylabel('Message Count')
         ax.set_xmargin(5)
         ax.set_title('Top 10 Chatters')
         ax.set_xticks(x_axis)
-        ax.set_xticklabels(names)
-        ax.tick_params(axis='x', labelrotation=25, labelsize=9)
-        ax.grid(axis='y')
+        ax.set_xticklabels(names, rotation=25, rotation_mode='anchor')
+        ax.tick_params(axis='x', labelsize=9, pad=25)
 
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
 

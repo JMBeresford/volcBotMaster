@@ -72,15 +72,6 @@ class Administrator(commands.Cog):
         await ctx.send('Get :clap: him :clap: outta :clap: here :clap:')
 
     @commands.command()
-    async def die(self, ctx):
-        if not await self.permission(ctx):
-            await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
-            return
-
-        await ctx.send('Shutting down... :wave:')
-        await self.client.close()
-
-    @commands.command()
     async def mod(self, ctx, target: discord.Member):  # broken currently
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')

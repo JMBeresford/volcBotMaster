@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+"""Self-explanatory name"""
+
 
 class Nonsense(commands.Cog):
     def __init__(self, client):
