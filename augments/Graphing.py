@@ -75,7 +75,7 @@ class Graphing(commands.Cog):
         ax.set_title('Top 10 Chatters')
         ax.set_xticks(x_axis)
         ax.set_xticklabels(names)
-        ax.tick_params(axis='x', labelrotation=20, labelsize=9)
+        ax.tick_params(axis='x', labelrotation=25, labelsize=9)
         ax.grid(axis='y')
 
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
