@@ -71,12 +71,14 @@ class Graphing(commands.Cog):
         fig, ax = plt.subplots()
         ax.bar(x_axis, msg_count, bar_width)
         ax.set_ylabel('Message Count')
+        ax.set_xmargin(5)
         ax.set_title('Top 10 Chatters')
         ax.set_xticks(x_axis)
         ax.set_xticklabels(names)
+        ax.tick_params(axis='x', labelrotation=20, labelsize=9)
         ax.grid(axis='y')
 
-        fig.savefig(f'data/{guild}/graph.png')
+        fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
 
         await ctx.send(content=f'The top chatters for the {ctx.guild} server:',
                        file=File(f'data/{guild}/graph.png'))
