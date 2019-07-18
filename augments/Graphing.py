@@ -60,7 +60,8 @@ class Graphing(commands.Cog):
         cursor.execute("SELECT id, message_count FROM members")
 
         data = sorted(cursor.fetchall(), key=itemgetter(1))  # sorts the list of tuples by the [1] index values
-        users = [await self.id_to_member(user[0], ctx) for user in data]
+        data.reverse()
+        users = [await self.id_to_member(user[0], ctx) for user in data[0:10]]
         names = [user.name for user in users]
         msg_count = [user[1] for user in data]
         conn.commit()
