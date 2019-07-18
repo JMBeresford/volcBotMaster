@@ -1,4 +1,3 @@
-from operator import itemgetter
 import sqlite3 as sql
 from datetime import datetime
 from discord.ext import commands
@@ -161,6 +160,8 @@ class General(commands.Cog):
 
         conn.close()
 
+
+"""
     @commands.command()
     async def top10(self, ctx):  # Will be transitioned to a graph at some point
         guild = ctx.guild
@@ -179,6 +180,7 @@ class General(commands.Cog):
             await ctx.send(msg)
 
         conn.close()
+"""
 
 
 def setup(client):

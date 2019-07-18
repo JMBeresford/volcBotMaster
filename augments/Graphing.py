@@ -3,11 +3,19 @@ from discord.ext import commands
 import sqlite3 as sql
 import os
 import matplotlib.pyplot as plt
+import numpy as np
+from operator import itemgetter
 
 
 class Graphing(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    async def id_to_member(self, member_id, ctx):
+        for member in ctx.guild.members:
+            if member.id == int(member_id):
+                return member
+        return 'User Not Found'
 
     @commands.command()
     async def serveractivity(self, ctx, *, x='week'):
@@ -40,6 +48,41 @@ class Graphing(commands.Cog):
         await ctx.send(content="This past week's server activity:\n",
                        file=File(f'data/{ctx.guild.id}/graph.png'))
         os.remove(f'data/{ctx.guild.id}/graph.png')
+
+    @commands.command()
+    async def top10(self, ctx):
+        guild = ctx.guild.id
+        author = ctx.message.author
+        bar_width = 0.15
+
+        conn = sql.connect(f'data/{guild}/stats.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, message_count FROM members")
+
+        data = sorted(cursor.fetchall(), key=itemgetter(1))  # sorts the list of tuples by the [1] index values
+        users = [await self.id_to_member(user[0], ctx) for user in data]
+        names = [user.name for user in users]
+        msg_count = [user[1] for user in data]
+        conn.commit()
+        conn.close()
+
+        x_axis = np.arange(len(names))
+        fig, ax = plt.subplots()
+        ax.bar(x_axis, msg_count, bar_width)
+        ax.set_ylabel('Message Count')
+        ax.set_title('Top 10 Chatters')
+        ax.set_xticks(x_axis)
+        ax.set_xticklabels(names)
+        ax.grid(axis='y')
+
+        fig.savefig(f'data/{guild}/graph.png')
+
+        await ctx.send(content=f'The top chatters for the {ctx.guild} server:',
+                       file=File(f'data/{guild}/graph.png'))
+        os.remove(f'data/{guild}/graph.png')
+
+        if author not in users:
+            await ctx.send(f"Step it up, {author.mention}, you're not even on there :smirk:")
 
 
 def setup(client):
