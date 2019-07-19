@@ -3,6 +3,7 @@ from discord.ext import commands
 
 """Self-explanatory name"""
 
+# TODO: favoriteWord, favoriteCommand
 
 class Nonsense(commands.Cog):
     def __init__(self, client):

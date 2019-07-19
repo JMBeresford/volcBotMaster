@@ -39,6 +39,13 @@ async def reload(ctx):
         for filename in def_augments:
             client.reload_extension(f'augments.{filename}')
 
+@client.command()
+async def die(ctx):
+    if not await client.is_owner(ctx.author):
+        await ctx.send(f'Only the bot owner can do that, {ctx.author.mention}')
+    else:
+        await client.close()
+
 
 @client.event
 async def on_ready():
@@ -85,6 +92,11 @@ async def on_command(ctx):  # permissions check
             pass
 
     conn.close()
+
+@client.event
+async def on_command_error(ctx, error):
+    if error is commands.errors.MissingRequiredArgument:
+        await ctx.send("Syntax Error: Try `?help <command>`")
 
 
 client.run(token)

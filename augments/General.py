@@ -161,27 +161,6 @@ class General(commands.Cog):
         conn.close()
 
 
-"""
-    @commands.command()
-    async def top10(self, ctx):  # Will be transitioned to a graph at some point
-        guild = ctx.guild
-
-        with sql.connect(f'data/{guild.id}/stats.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, message_count FROM members")
-
-            data = sorted(cursor.fetchall(), key=itemgetter(1))
-            data.reverse()
-
-            msg = 'The top 10 chatters in this server are:\n'
-            for entry in data[0:9]:
-                msg = f'{msg}{await self.id_to_name(entry[0], ctx)}\n'
-
-            await ctx.send(msg)
-
-        conn.close()
-"""
-
 
 def setup(client):
     client.add_cog(General(client))

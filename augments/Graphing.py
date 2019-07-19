@@ -90,5 +90,7 @@ class Graphing(commands.Cog):
             await ctx.send(f"Step it up, {author.mention}, you're not even on there :smirk:")
 
 
+
+
 def setup(client):
     client.add_cog(Graphing(client))
