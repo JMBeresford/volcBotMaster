@@ -5,6 +5,7 @@ from discord.ext import commands
 
 # TODO: favoriteWord, favoriteCommand
 
+
 class Nonsense(commands.Cog):
     def __init__(self, client):
         self.client = client
