@@ -39,6 +39,7 @@ async def reload(ctx):
         for filename in def_augments:
             client.reload_extension(f'augments.{filename}')
 
+
 @client.command()
 async def die(ctx):
     if not await client.is_owner(ctx.author):
