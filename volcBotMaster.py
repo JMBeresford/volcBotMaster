@@ -75,7 +75,7 @@ async def on_command(ctx):  # permissions check
 
         cursor.execute("SELECT command, clearance FROM commands")
         data = cursor.fetchone()
-        command_list = zip(data[0], data[1])
+        command_list = dict(zip(data[0], data[1]))
 
         if command_list is [] or ctx.command not in command_list:
             return
