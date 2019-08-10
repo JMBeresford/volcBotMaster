@@ -17,11 +17,9 @@ class Administrator(commands.Cog):
             with sql.connect(f'data/{guild.id}/stats.db') as conn:
                 cursor = conn.cursor()
 
-                cursor.execute('''CREATE TABLE IF NOT EXISTS commands (
-                    command text PRIMARY KEY,
-                    clearance text
-                );
-                ''')
+                cursor.execute( '''CREATE TABLE IF NOT EXISTS commands (
+                                command text PRIMARY KEY,
+                                clearance text);''')
 
                 try:
                     for command in self.admin_commands:
@@ -72,7 +70,7 @@ class Administrator(commands.Cog):
         await ctx.send('Get :clap: him :clap: outta :clap: here :clap:')
 
     @commands.command()
-    async def mod(self, ctx, target: discord.Member):  # broken currently
+    async def mod(self, ctx, target: discord.Member):  # TODO: fix
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
