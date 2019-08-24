@@ -2,9 +2,11 @@ import discord
 import sqlite3 as sql
 from discord.ext import commands
 
-"""This augment contains all basic administrator commands. Global permission system that can be
-   configured client-side is planned in anticipation of user-created cogs. Server-specific
-   lists of administrators are kept in the data/{server_id} directories respective to each server."""
+"""
+This augment contains all basic administrator commands. Global permission system that can be
+configured client-side is planned in anticipation of user-created cogs. Server-specific
+lists of administrators are kept in the data/{server_id} directories respective to each server.
+"""
 
 
 class Administrator(commands.Cog):
@@ -24,8 +26,8 @@ class Administrator(commands.Cog):
                 try:
                     for command in self.admin_commands:
                         data = (command, 'administrator')
-                        cursor.execute("INSERT INTO commands(command, clearance)"
-                                       "VALUES(?,?)", data)
+                        cursor.execute( "INSERT INTO commands(command, clearance)"
+                                        "VALUES(?,?)", data)
                 except sql.IntegrityError:
                     pass
 
@@ -42,8 +44,8 @@ class Administrator(commands.Cog):
             with sql.connect(f'data/{after.guild.id}/stats.db') as conn:
                 cursor = conn.cursor()
                 data = (after.id, str(after))
-                cursor.execute("INSERT INTO administrators(id, name)"
-                               "VALUES(?,?)", data)
+                cursor.execute( "INSERT INTO administrators(id, name)"
+                                "VALUES(?,?)", data)
             conn.close()
             print(f'{str(after)} has been appointed as a Administrator.')
 

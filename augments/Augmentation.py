@@ -2,10 +2,12 @@ from discord.ext import commands
 import json
 import os
 
-"""This augment contains all functionality for enabling/disabling augments on a global-scale
-   Adding server-specific augmentation is currently not planned and likely will not be due to
-   impracticality, though I may implement blacklisting of specific augments on a per server
-   basis in the future."""
+"""
+This augment contains all functionality for enabling/disabling augments on a global-scale
+Adding server-specific augmentation is currently not planned and likely will not be due to
+impracticality, though I may implement blacklisting of specific augments on a per server
+basis in the future.
+"""
 
 
 class Augmentation(commands.Cog):

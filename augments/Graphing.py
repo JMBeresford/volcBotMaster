@@ -25,12 +25,12 @@ class Graphing(commands.Cog):
     async def serveractivity(self, ctx, *, time='week'):  # TODO: make time interchangeable
         with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT datetime FROM activity WHERE DATE(datetime)"  # querying the db for datetime objects
-                           " BETWEEN DATE('now','-7 day') AND DATE('now')")      # from the last 7 days
+            cursor.execute( "SELECT datetime FROM activity WHERE DATE(datetime)"  # querying the db for datetime objects
+                            " BETWEEN DATE('now','-7 day') AND DATE('now')")      # from the last 7 days
 
-            dated_messages = [date_time for date_time in cursor]  # Sqlite returns list of tuples
-            dated_messages = [datetime.fromisoformat(tup[0])          # thus these hoops we jump through
-                              for tup in dated_messages]
+            dated_messages =    [date_time for date_time in cursor]  # Sqlite returns list of tuples
+            dated_messages =    [datetime.fromisoformat(tup[0])          # thus these hoops we jump through
+                                for tup in dated_messages]
 
         conn.close()
 
@@ -47,12 +47,12 @@ class Graphing(commands.Cog):
 
         fig, ax = plt.subplots()
         ax.plot(x, y)
-        ax.set(ylabel="Message Count",
-               title="Server Activity")
+        ax.set( ylabel="Message Count",
+                title="Server Activity")
         ax.grid()
         fig.savefig(f'data/{ctx.guild.id}/graph.png')
-        await ctx.send(content="This past week's server activity:\n",
-                       file=File(f'data/{ctx.guild.id}/graph.png'))
+        await ctx.send( content="This past week's server activity:\n",
+                        file=File(f'data/{ctx.guild.id}/graph.png'))
         os.remove(f'data/{ctx.guild.id}/graph.png')
 
     @commands.command()
@@ -63,8 +63,8 @@ class Graphing(commands.Cog):
 
         conn = sql.connect(f'data/{guild}/stats.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT id, message_count FROM members"
-                       " ORDER BY message_count DESC LIMIT 10")
+        cursor.execute( "SELECT id, message_count FROM members"
+                        " ORDER BY message_count DESC LIMIT 10")
 
         data = cursor.fetchall()
         users = [await self.id_to_member(user[0], ctx) for user in data[0:10]]
@@ -87,8 +87,8 @@ class Graphing(commands.Cog):
         # tight option because xtick labels get cut off otherwise, due to rotation
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
 
-        await ctx.send(content=f'The top chatters for the {ctx.guild} server:',
-                       file=File(f'data/{guild}/graph.png'))
+        await ctx.send( content=f'The top chatters for the {ctx.guild} server:',
+                        file=File(f'data/{guild}/graph.png'))
         os.remove(f'data/{guild}/graph.png')
 
         if author not in users:
@@ -102,9 +102,9 @@ class Graphing(commands.Cog):
         conn = sql.connect(f'data/{guild}/stats.db')
         cursor = conn.cursor()
 
-        cursor.execute("SELECT join_date FROM members"
-                       " WHERE DATE(join_date) BETWEEN DATE('now', '-12 month') AND DATE('now')"
-                       " ORDER BY join_date ASC")
+        cursor.execute( "SELECT join_date FROM members"
+                        " WHERE DATE(join_date) BETWEEN DATE('now', '-12 month') AND DATE('now')"
+                        " ORDER BY join_date ASC")
         data = cursor.fetchall()
         conn.commit()
         conn.close()
@@ -123,13 +123,13 @@ class Graphing(commands.Cog):
         ax.grid()
         ax.plot(x, y)
         ax.tick_params(axis='x', labelsize=7)
-        ax.set(ylabel="Number of New Members",
-               title="Server Growth")
+        ax.set( ylabel="Number of New Members",
+                title="Server Growth")
 
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
 
-        await ctx.send(content=f'The growth of the {ctx.guild} server:',
-                       file=File(f'data/{guild}/graph.png'))
+        await ctx.send( content=f'The growth of the {ctx.guild} server:',
+                        file=File(f'data/{guild}/graph.png'))
         os.remove(f'data/{guild}/graph.png')
 
 

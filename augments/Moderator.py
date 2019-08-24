@@ -2,9 +2,11 @@ import discord
 from discord.ext import commands
 import sqlite3 as sql
 
-"""This augment contains all basic moderator+ commands. Global permission system that can be
-   configured client-side is planned in anticipation of user-created cogs. Server-specific
-   lists of moderators are kept in the data/{server_id} directories respective to each server."""
+"""
+This augment contains all basic moderator+ commands. Global permission system that can be
+configured client-side is planned in anticipation of user-created cogs. Server-specific
+lists of moderators are kept in the data/{server_id} directories respective to each server.
+"""
 
 
 class Moderator(commands.Cog):
@@ -27,8 +29,8 @@ class Moderator(commands.Cog):
                 try:
                     for command in self.mod_commands:
                         data = (command, 'moderator')
-                        cursor.execute("INSERT INTO commands(command, clearance)"
-                                       "VALUES(?,?)", data)
+                        cursor.execute( "INSERT INTO commands(command, clearance)"
+                                        "VALUES(?,?)", data)
                 except sql.IntegrityError:
                     pass
 
@@ -45,8 +47,8 @@ class Moderator(commands.Cog):
             with sql.connect(f'data/{after.guild.id}/stats.db') as conn:
                 cursor = conn.cursor()
                 data = (after.id, str(after))
-                cursor.execute("INSERT INTO moderators(id, name)"
-                               "VALUES(?,?)", data)
+                cursor.execute( "INSERT INTO moderators(id, name)"
+                                "VALUES(?,?)", data)
 
             conn.close()
             print(f'{str(after)} has been appointed as a Moderator.')

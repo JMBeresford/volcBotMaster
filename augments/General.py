@@ -13,8 +13,8 @@ class General(commands.Cog):
         for guild in self.client.guilds:
             mods = [member for member in guild.members
                     if 'BotMechanic' in [role.name for role in member.roles]]
-            admins = [member for member in guild.members
-                      if 'BotOfficer' in [role.name for role in member.roles]]
+            admins =    [member for member in guild.members
+                        if 'BotOfficer' in [role.name for role in member.roles]]
             conn = sql.connect(f'data/{guild.id}/stats.db')
             cursor = conn.cursor()
 
@@ -36,8 +36,8 @@ class General(commands.Cog):
             for member in guild.members:
                 info = (member.id, str(member), 0, member.joined_at)
                 try:
-                    cursor.execute('''INSERT INTO members(id, name, message_count, join_date)
-                                   VALUES(?,?,?,?)''', info)
+                    cursor.execute( '''INSERT INTO members(id, name, message_count, join_date)
+                                    VALUES(?,?,?,?)''', info)
                 except sql.IntegrityError:
                     pass
 
@@ -51,8 +51,8 @@ class General(commands.Cog):
             for mod in mods:
                 info = (mod.id, mod.name)
                 try:
-                    cursor.execute('''INSERT INTO moderators(id, name)
-                                                   VALUES(?,?)''', info)
+                    cursor.execute( '''INSERT INTO moderators(id, name)
+                                    VALUES(?,?)''', info)
                 except sql.IntegrityError:
                     pass
 
@@ -66,8 +66,8 @@ class General(commands.Cog):
             for admin in admins:
                 info = (admin.id, admin.name)
                 try:
-                    cursor.execute('''INSERT INTO administrators(id, name)
-                                   VALUES(?,?)''', info)
+                    cursor.execute( '''INSERT INTO administrators(id, name)
+                                    VALUES(?,?)''', info)
                 except sql.IntegrityError:
                     pass
 
@@ -90,8 +90,8 @@ class General(commands.Cog):
         info = (member.id, str(member), 0, member.joined_at)
 
         try:
-            cursor.execute('''INSERT INTO members(id, name, message_count, join_date)
-                           VALUES(?,?,?,?)''', info)
+            cursor.execute( '''INSERT INTO members(id, name, message_count, join_date)
+                            VALUES(?,?,?,?)''', info)
             conn.commit()
         except sql.IntegrityError:
             conn.rollback()
