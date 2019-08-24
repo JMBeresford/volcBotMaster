@@ -22,6 +22,11 @@ class Nonsense(commands.Cog):
     async def whisper(self, ctx, target: discord.Member, *, msg):
         await target.send(f'{ctx.message.author} said: {msg}')
 
+    @commands.command()
+    async def penis(self, ctx, target: discord.Member):
+        length = target.id % 30
+        await ctx.send(f"{target.mention}'s length: 8{'=' * length}D")
+
 
 def setup(client):
     client.add_cog(Nonsense(client))
