@@ -24,7 +24,7 @@ class Nonsense(commands.Cog):
 
     @commands.command()
     async def penis(self, ctx, target: discord.Member):
-        if ctx.message.author.id == 174439608577294336:
+        if target.id == 174439608577294336:
             await ctx.send(f"{target.mention}'s length: 8{'=' * 31}D")
         else:
             length = target.id % 30
