@@ -67,6 +67,7 @@ class Moderator(commands.Cog):
 
     @commands.command()
     async def purge(self, ctx, amount: int, target: discord.Member):
+        """Purges given number of target user's messages"""
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
@@ -76,13 +77,15 @@ class Moderator(commands.Cog):
         def target_acquired(msg):   # replace with lambda expression in check below
             return msg.author == target
 
-        message_murder = await ctx.message.channel.purge(limit=amount, check=target_acquired,
-                                                         before=ctx.message)
+        message_murder = await ctx.message.channel.purge(   
+            limit=amount, check=target_acquired,
+            before=ctx.message)
 
         await ctx.send(f"Purged {len(message_murder)} of {target.mention}'s messages.")
 
     @commands.command()
     async def kick(self, ctx, target: discord.Member, *, because='because reasons'):
+        """Kicks target user from current server"""
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
@@ -93,6 +96,7 @@ class Moderator(commands.Cog):
 
     @commands.command()
     async def restrict(self, ctx, command: str):
+        """Restricts target command for Moderator use only"""
         if self.client.get_command(command) is None:
             await ctx.send(f'{ctx.author.mention}, the command "{command}" does not exist.')
             return
@@ -100,8 +104,8 @@ class Moderator(commands.Cog):
         with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
             cursor = conn.cursor()
             data = (command, 'moderator')
-            cursor.execute("INSERT INTO commands(command, clearance)"
-                           "VAlUES(?,?)", data)
+            cursor.execute( "INSERT INTO commands(command, clearance)"
+                            "VAlUES(?,?)", data)
 
         conn.close()
         await ctx.send(f'The command, {command}, can now only be used by {self.mod_role}s')

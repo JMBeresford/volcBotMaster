@@ -43,8 +43,9 @@ class Augmentation(commands.Cog):
         with open('data/user_augs.json', 'w') as file:
             json.dump(self.user_augments, file)
 
-    @commands.command()
+    @commands.command(aliases=["aug", "a"])
     async def augment(self, ctx, aug):
+        """Enables the target augment\n"""
         try:
             self.client.load_extension(f'augments.{aug}')
         except commands.ExtensionNotFound:
@@ -58,6 +59,7 @@ class Augmentation(commands.Cog):
 
     @commands.command()
     async def deaugment(self, ctx, aug):
+        """Disables the target augment\n"""
         if await self.is_default(aug):
             await ctx.send(f'{aug} augments cannot be unloaded.')
         else:

@@ -33,15 +33,18 @@ async def new_guild(guild, startup=True):
 
 @client.command()
 async def reload(ctx):
+    """Reloads default augments\n"""
     if not await client.is_owner(ctx.author):
         await ctx.send(f'Only the bot owner can do that, {ctx.author.mention}')
     else:
+        await ctx.send("Reloading default augments...")
         for filename in def_augments:
             client.reload_extension(f'augments.{filename}')
 
 
 @client.command()
 async def die(ctx):
+    """This kills the crab, I mean, bot\n"""
     if not await client.is_owner(ctx.author):
         await ctx.send(f'Only the bot owner can do that, {ctx.author.mention}')
     else:

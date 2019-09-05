@@ -121,6 +121,7 @@ class General(commands.Cog):
 
     @commands.command()
     async def admins(self, ctx):
+        """Lists the Administrators for the current server\n"""
         guild = ctx.guild
 
         with sql.connect(f'data/{guild.id}/stats.db') as conn:
@@ -142,6 +143,7 @@ class General(commands.Cog):
 
     @commands.command()
     async def mods(self, ctx):
+        """Lists the Moderators for the current server\n"""
         guild = ctx.guild
 
         with sql.connect(f'data/{guild.id}/stats.db') as conn:

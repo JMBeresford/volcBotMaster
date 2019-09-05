@@ -23,6 +23,7 @@ class Graphing(commands.Cog):
 
     @commands.command()
     async def serveractivity(self, ctx, *, time='week'):  # TODO: make time interchangeable
+        """Graph of messages sent in current server over past 7 days\n"""
         with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
             cursor = conn.cursor()
             cursor.execute( "SELECT datetime FROM activity WHERE DATE(datetime)"  # querying the db for datetime objects
@@ -57,6 +58,7 @@ class Graphing(commands.Cog):
 
     @commands.command()
     async def top10(self, ctx):
+        """Graph of top 10 chatters in current server\n"""
         guild = ctx.guild.id
         author = ctx.message.author
         bar_width = 0.15
@@ -96,6 +98,7 @@ class Graphing(commands.Cog):
 
     @commands.command()
     async def servergrowth(self, ctx, time='year'):  # TODO: make time interchangeable
+        """Graph of new users for current server over last 12 months\n"""
         date_of = datetime.now()
         guild = ctx.guild.id
 

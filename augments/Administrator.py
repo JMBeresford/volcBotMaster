@@ -63,6 +63,7 @@ class Administrator(commands.Cog):
 
     @commands.command()
     async def ban(self, ctx, target: discord.Member, *, because='because reasons'):
+        """Bans target user\n"""
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
@@ -73,6 +74,7 @@ class Administrator(commands.Cog):
 
     @commands.command()
     async def mod(self, ctx, target: discord.Member):  # TODO: fix
+        """Grants target user Mod privileges\n"""
         if not await self.permission(ctx):
             await ctx.send(f'{ctx.author.mention}, you do not have permission to do that.')
             return
