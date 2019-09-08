@@ -4,8 +4,15 @@ import logging
 import json
 import os
 
-with open('token.json', 'r') as file:  # Takes bot token from file
-    token = json.load(file)
+try:
+    f = open("config.json", "r")
+except FileNotFoundError as e:
+    print("Config file not found, please run configure.py first.\n")
+    exit()
+
+config = json.load(f)
+
+f.close()
 
 logger = logging.getLogger('discord')  # logging nonsense
 logger.setLevel(logging.DEBUG)
@@ -13,11 +20,11 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-client = commands.Bot(command_prefix='?')
+client = commands.Bot(command_prefix=config['prefix'])
 def_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # default augments
-client.owner_id = 174439608577294336
-mod_role = "BotMechanic"
-admin_role = "BotOfficer"
+client.owner_id = config['owner_id']
+mod_role = config['mod_role']
+admin_role = config['admin_role']
 
 
 async def new_guild(guild, startup=True):
@@ -103,4 +110,4 @@ async def on_command_error(ctx, error):
         await ctx.send("Syntax Error: Try `?help <command>`")
 
 
-client.run(token)
+client.run(config['token'])
