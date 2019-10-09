@@ -26,13 +26,22 @@ class Nonsense(commands.Cog):
         await target.send(f'{ctx.message.author} said: {msg}')
 
     @commands.command()
-    async def penis(self, ctx, target: discord.Member):
+    async def penis(self, ctx, *targets: discord.Member):
         """The bot physically measures your length\n"""
-        if target.id == 174439608577294336:
-            await ctx.send(f"{target.mention}'s length: 8{'=' * 31}D")
-        else:
-            length = target.id % 30
-            await ctx.send(f"{target.mention}'s length: 8{'=' * length}D")
+        
+        shafts = {}
+        msg = ""
+        
+        for target in targets:
+            if target.id == 174439608577294336:
+                shafts[target.id] = f"8{'=' * 31}D"
+                msg += f"{shafts[target.id]}\t<-{target.mention}'s length\n"
+            else:
+                length = target.id % 30
+                shafts[target.id] = f"8{'=' * length}D"
+                msg += f"{shafts[target.id]}\t<-{target.mention}'s length\n"
+
+        await ctx.send(msg)
 
 
 def setup(client):
