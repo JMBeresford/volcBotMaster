@@ -8,6 +8,14 @@
 Business inquiries/if you want to yell at me for butchering this language:
 > email: jberesford@volcaus.com | discord: JBeresford#2604
 
+## Screenshots
+Server Growth, shown as new members per month:  
+![Server Growth Graph](img/volcbot1.png)  
+Server Activity, shown as # of messages sent per day:  
+![Server Activity Graph](img/volcbot2.png)  
+Top Chatters, shown as given users # of messages sent:  
+![Top Chatters Graph](img/volcbot3.png)  
+
 ## Prime Directives:
 
 1. Obtain Knowledge - 0% completion
@@ -20,20 +28,20 @@ Business inquiries/if you want to yell at me for butchering this language:
 
 3. Keep track of all user data for use in the following - ~75% completion
 
-4. Permissions system - ~50% completion
+4. Permissions system - ~75% completion
 
-5. Provide visualizations of user data/server statistics - ~5% completion
+5. Provide visualizations of user data/server statistics - ~90% completion
 
 6. Server moderation functionality - ~idk% completion
     
     
 ## Secondary Objectives:
 
-1. Maybe some fun stuff ( think !penis cog from [Twentysix26's bot](https://github.com/Twentysix26/26-Cogs) )
+1. Maybe some fun stuff
     
-   - !penis command
+   - !dice command
         
-   - !quote(s) - this one will happen
+   - !quote(s)
     
 2. Game??!
 
@@ -45,7 +53,7 @@ Business inquiries/if you want to yell at me for butchering this language:
 
     - Cryptocurrency pricing
 
-5. Order delivery from #general (maybe store credit card info, unsure)
+5. Order dominos delivery from #general (maybe store credit card info, unsure)
 
 [-1]. (try to) Maintain poorly written code
     
