@@ -53,6 +53,14 @@ config['token'] = input("Enter your bot token: ")
 
 os.system(clear)
 print(header)
+print("This bot uses PostreSQL, please enter the relevant info for your instance.\n")
+
+config['db_name'] = input("Enter the name of your Postgres database: ")
+config['db_user'] = input("Enter the user for your database instance: ")
+config['db_password'] = input(f"Enter the password for {config['db_user']}: ")
+
+os.system(clear)
+print(header)
 
 with open('config.json', 'w+') as file:
     json.dump(config, file)
