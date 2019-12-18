@@ -65,7 +65,6 @@ class Nonsense(commands.Cog):
 
         else:
             author = ctx.author
-            await author.message(file=f"data/books/{book_name}")
-
+            await author.send(content='Here ya go:\n', file=discord.File(f"data/books/{book_name}"))
 def setup(client):
     client.add_cog(Nonsense(client))

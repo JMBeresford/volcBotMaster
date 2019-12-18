@@ -33,7 +33,7 @@ class Graphing(commands.Cog):
             dated_messages =    [datetime.fromisoformat(tup[0])          # thus these hoops we jump through
                                 for tup in dated_messages]
 
-        conn.close()
+        #conn.close()
 
         before = datetime.today() - relativedelta(days=6)
 
