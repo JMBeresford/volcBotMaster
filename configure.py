@@ -1,6 +1,7 @@
 import json
 import os
 import platform
+import psycopg2
 
 os_type = platform.system()
 config = {}
@@ -53,11 +54,51 @@ config['token'] = input("Enter your bot token: ")
 
 os.system(clear)
 print(header)
-print("This bot uses PostreSQL, please enter the relevant info for your instance.\n")
+print(  "This bot uses PostreSQL, please enter the relevant info for your instance.\n"
+        "Note: You are expected to have the database server setup of your own accord.\n\n")
 
-config['db_name'] = input("Enter the name of your Postgres database: ")
-config['db_user'] = input("Enter the user for your database instance: ")
-config['db_password'] = input(f"Enter the password for {config['db_user']}: ")
+while True: # smirks in evil
+    config['db_host'] = input("Enter the host for your Postgres Database: ")
+    config['db_port'] = input("Enter the port for your Postgres Database: ")
+    config['db_name'] = input("Enter the name of your Postgres database: ")
+    config['db_user'] = input("Enter the user for your database instance: ")
+    config['db_password'] = input(f"Enter the password for {config['db_user']}: ")
+
+    try:
+        conn = psycopg2.connect(user = config['db_user'],
+                                password = config['db_password'],
+                                host = config['db_host'],
+                                port = config['db_port'],
+                                dbname = config['db_name'])
+
+        cur = conn.cursor()
+
+        cur.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), guilds BIGINT[]);")
+        cur.execute('''CREATE TABLE IF NOT EXISTS messages( id BIGSERIAL PRIMARY KEY,
+                                                            author_id BIGINT,
+                                                            author_name VARCHAR(255),
+                                                            sent_at TIMESTAMP,
+                                                            guild_id BIGINT,
+                                                            channel_id BIGINT,
+                                                            content TEXT);''')
+
+        conn.commit()
+
+    except (Exception, psycopg2.Error) as error:
+        print("There was an error with the given connection:\n", error)
+        input("Press enter to retry\n\n")
+        continue
+
+    else:
+        try:
+            cur.close()
+            conn.close()
+            print("Database preparation complete.\n")
+            break
+
+        except:
+            print("Database preparation complete.\n")
+            pass
 
 os.system(clear)
 print(header)

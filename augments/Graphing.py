@@ -1,12 +1,14 @@
 from discord import File
+import json
 from discord.ext import commands
+import psycopg2 as psql
 import sqlite3 as sql
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY, DAILY
-from datetime import datetime
+from datetime import datetime, date
 
 """The logic for graphing is all implemented here"""
 
@@ -14,6 +16,9 @@ from datetime import datetime
 class Graphing(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.config = {}
+        with open('config.json') as f:
+            self.config = json.load(f)
 
     async def id_to_member(self, member_id, ctx):
         for member in ctx.guild.members:
@@ -22,7 +27,98 @@ class Graphing(commands.Cog):
         return 'User Not Found'
 
     @commands.command()
-    async def serveractivity(self, ctx, *, time='week'):  # TODO: make time interchangeable
+    async def serveractivity(self, ctx, *, time='week'):
+        """Graph of messages sent in current server over given time interval\n"""
+        time = time.lower()
+        timeframes = ('week', 'month', 'year')
+        if time not in timeframes:
+            await ctx.send("Please enter a valid timeframe ('week', 'month' 'year').")
+            return
+
+        day_span = 7 if time == 'week' else 31 if time == 'month' else 365
+        before = datetime.today() - relativedelta(days=(day_span - 1))
+        fmtstr = '%a %d' if time != 'year' else '%b %Y'
+        rotation = 0
+        pad = 0
+
+        print("before:", before)
+
+        try:
+            connection = psql.connect(user = self.config['db_user'],
+                                            password = self.config['db_password'],
+                                            host = self.config['db_host'],
+                                            port = self.config['db_port'],
+                                            dbname = self.config['db_name'])
+        except (Exception, psql.Error) as error:
+            print(error)
+
+        curr = connection.cursor()
+
+        try:
+            curr.execute('''SELECT sent_at
+                            FROM messages
+                            WHERE sent_at
+                            <= timestamp 'now' AND
+                            sent_at >= timestamp 'now' - interval '%s days'
+                            ''', (day_span,))
+        except (Exception, psql.Error) as error:
+            print(error)
+
+        dated_messages = [dt[0].strftime(fmtstr) for dt in curr]
+
+        curr.close()
+        connection.close()
+
+        if time=='week':
+            x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=7, dtstart=before)]
+        elif time=='month':
+            x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=31, dtstart=before)]
+            rotation = 90
+            pad = 20
+        else:
+            x = [dt.strftime(fmtstr) for dt in rrule(MONTHLY, count=12, dtstart=datetime.now() - relativedelta(months=11))]
+        y = []
+
+        print(x)
+        if time != 'year':
+            for day in range(0,day_span):
+                delta = datetime.today() - relativedelta(days=day)
+                print('delta:', delta)
+                y.append(dated_messages.count(delta.strftime(fmtstr)))
+
+        else:
+            for month in range(0,12):
+                delta = datetime.today() - relativedelta(months=month)
+                print('delta:', delta)
+                print('delta format:', delta.strftime(fmtstr))
+                y.append(dated_messages.count(delta.strftime(fmtstr)))
+        y.reverse()
+        print(y)
+
+        fig, ax = plt.subplots()
+        ax.plot_date(x,y,fmt='-')
+        ax.set( ylabel="Message Count",
+                title="Server Activity")
+        ax.set_xticklabels(x,rotation=rotation, rotation_mode='anchor')
+        ax.tick_params(axis='x', labelsize=9, pad=pad)
+        ax.grid()
+        ax.autoscale()
+
+        try:
+            fig.savefig(f'data/{ctx.guild.id}/graph.png', bbox_inches='tight')
+        except Exception as error:
+            print(error)
+        
+        try:
+            await ctx.send( content="This past week's server activity:\n",
+                            file=File(f'data/{ctx.guild.id}/graph.png'))
+        except Exception as error:
+            print(error)
+        
+        os.remove(f'data/{ctx.guild.id}/graph.png')
+
+    @commands.command()
+    async def old_serveractivity(self, ctx, *, time='week'):  # TODO: make time interchangeable
         """Graph of messages sent in current server over past 7 days\n"""
         with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
             cursor = conn.cursor()
@@ -33,6 +129,7 @@ class Graphing(commands.Cog):
             dated_messages =    [datetime.fromisoformat(tup[0])          # thus these hoops we jump through
                                 for tup in dated_messages]
 
+        cursor.close()
         conn.close()
 
         before = datetime.today() - relativedelta(days=6)

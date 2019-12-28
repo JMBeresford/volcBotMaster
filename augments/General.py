@@ -1,5 +1,8 @@
 import sqlite3 as sql
+import json
+import psycopg2 as psql
 from datetime import datetime
+import discord
 from discord.ext import commands
 
 """This augment contains most of the logic for obtaining user/server data"""
@@ -8,6 +11,10 @@ from discord.ext import commands
 class General(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.config = {}
+        with open('config.json') as f:
+            self.config = json.load(f)
+
         self.message_count = {}
 
         for guild in self.client.guilds:
@@ -100,25 +107,32 @@ class General(commands.Cog):
             conn.close()
 
     @commands.Cog.listener()
-    async def on_message(self, ctx):
-        msg_date = datetime.today()
-        conn = sql.connect(f'data/{ctx.guild.id}/stats.db')
-        cursor = conn.cursor()
+    async def on_message(self, message):
+        if message.author.id == self.client.user.id:
+            print("bot typed")
+            return
 
-        info = (ctx.author.id,)
+        connection = psql.connect(  user = self.config['db_user'],
+                                    password = self.config['db_password'],
+                                    host = self.config['db_host'],
+                                    port = self.config['db_port'],
+                                    dbname = self.config['db_name'])
 
-        cursor.execute("SELECT message_count, id FROM members WHERE id=?", info)
-        data = cursor.fetchone()
+        curr = connection.cursor()
 
-        data = (data[0]+1, data[1])
-
-        cursor.execute("UPDATE members SET message_count=? WHERE id=?", data)
-
-        cursor.execute("INSERT INTO activity(datetime) VALUES(?)", (msg_date.isoformat(),))
-
-        conn.commit()
-        conn.close()
-
+        info = (message.author.id, str(message.author), datetime.now(),
+                message.guild.id, message.channel.id, message.content)
+        try:
+            curr.execute('''INSERT INTO messages
+                        (author_id, author_name, sent_at, guild_id, channel_id, content)
+                        VALUES (%s,%s,%s,%s,%s,%s)''', info)
+        except (Exception, psql.Error) as error:
+            print("There was an error with the insertion:", error)
+    
+        curr.close()
+        connection.commit()
+        connection.close()
+        
     @commands.command()
     async def admins(self, ctx):
         """Lists the Administrators for the current server\n"""
