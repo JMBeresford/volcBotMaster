@@ -18,65 +18,34 @@ class General(commands.Cog):
         self.message_count = {}
 
         for guild in self.client.guilds:
-            mods = [member for member in guild.members
-                    if 'BotMechanic' in [role.name for role in member.roles]]
-            admins =    [member for member in guild.members
-                        if 'BotOfficer' in [role.name for role in member.roles]]
-            conn = sql.connect(f'data/{guild.id}/stats.db')
+            conn = psql.connect(user = self.config['db_user'],
+                                password = self.config['db_password'],
+                                host = self.config['db_host'],
+                                port = self.config['db_port'],
+                                dbname = self.config['db_name'])
+
             cursor = conn.cursor()
 
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS members (
-                    id integer PRIMARY KEY,
-                    name text,
-                    message_count integer,
-                    join_date text
-            );
-            ''')
+            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP guilds BIGINT[]);")
 
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS activity (
-                    datetime text
-            );
-            ''')
+            cursor.execute('''CREATE TABLE IF NOT EXISTS messages(  id BIGSERIAL PRIMARY KEY,
+                                                                    author_id BIGINT,
+                                                                    author_name VARCHAR(255),
+                                                                    sent_at TIMESTAMP,
+                                                                    guild_id BIGINT,
+                                                                    channel_id BIGINT,
+                                                                    content TEXT);''')
 
             for member in guild.members:
-                info = (member.id, str(member), 0, member.joined_at)
+                info = (member.id, str(member), member.joined_at, guild.id)
                 try:
-                    cursor.execute( '''INSERT INTO members(id, name, message_count, join_date)
-                                    VALUES(?,?,?,?)''', info)
-                except sql.IntegrityError:
+                    cursor.execute( 'INSERT INTO members (id,name) VALUES (%s,%s);', info[0:2])
+                    cursor.execute('''  update members set guilds = array_append(
+                                        (select guilds from members where name='%s'),
+                                        cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,member.id))
+                except (Exception, psql.IntegrityError):
                     pass
 
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS moderators (
-                    id integer PRIMARY KEY,
-                    name text
-            );
-            ''')
-
-            for mod in mods:
-                info = (mod.id, mod.name)
-                try:
-                    cursor.execute( '''INSERT INTO moderators(id, name)
-                                    VALUES(?,?)''', info)
-                except sql.IntegrityError:
-                    pass
-
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS administrators (
-                    id integer PRIMARY KEY,
-                    name text
-            );
-            ''')
-
-            for admin in admins:
-                info = (admin.id, admin.name)
-                try:
-                    cursor.execute( '''INSERT INTO administrators(id, name)
-                                    VALUES(?,?)''', info)
-                except sql.IntegrityError:
-                    pass
 
             conn.commit()
             conn.close()

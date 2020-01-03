@@ -118,50 +118,19 @@ class Graphing(commands.Cog):
         os.remove(f'data/{ctx.guild.id}/graph.png')
 
     @commands.command()
-    async def old_serveractivity(self, ctx, *, time='week'):  # TODO: make time interchangeable
-        """Graph of messages sent in current server over past 7 days\n"""
-        with sql.connect(f'data/{ctx.guild.id}/stats.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute( "SELECT datetime FROM activity WHERE DATE(datetime)"  # querying the db for datetime objects
-                            " BETWEEN DATE('now','-7 day') AND DATE('now')")      # from the last 7 days
-
-            dated_messages =    [date_time for date_time in cursor]  # Sqlite returns list of tuples
-            dated_messages =    [datetime.fromisoformat(tup[0])          # thus these hoops we jump through
-                                for tup in dated_messages]
-
-        cursor.close()
-        conn.close()
-
-        before = datetime.today() - relativedelta(days=6)
-
-        dated_messages = [dt.strftime('%a %d') for dt in dated_messages]
-
-        x = [dt.strftime('%a %d') for dt in rrule(DAILY, count=7, dtstart=before)]
-        y = {}
-        for day in x:
-            y[day] = dated_messages.count(day)
-
-        y = list(y.values())
-
-        fig, ax = plt.subplots()
-        ax.plot(x, y)
-        ax.set( ylabel="Message Count",
-                title="Server Activity")
-        ax.grid()
-        fig.savefig(f'data/{ctx.guild.id}/graph.png')
-        await ctx.send( content="This past week's server activity:\n",
-                        file=File(f'data/{ctx.guild.id}/graph.png'))
-        os.remove(f'data/{ctx.guild.id}/graph.png')
-
-    @commands.command()
     async def top10(self, ctx):
         """Graph of top 10 chatters in current server\n"""
         guild = ctx.guild.id
         author = ctx.message.author
         bar_width = 0.15
 
-        conn = sql.connect(f'data/{guild}/stats.db')
+        conn = psql.connect(user = config['db_user'],
+                            password = config['db_password'],
+                            host = config['db_host'],
+                            port = config['db_port'],
+                            dbname = config['db_name'])
         cursor = conn.cursor()
+
         cursor.execute( "SELECT id, message_count FROM members"
                         " ORDER BY message_count DESC LIMIT 10")
 
