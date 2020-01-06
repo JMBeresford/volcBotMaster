@@ -78,6 +78,7 @@ async def on_guild_join(guild):
 
 @client.event
 async def on_command(ctx):  # permissions check
+    command_list = {}
     conn = psql.connect(user = config['db_user'],
                             password = config['db_password'],
                             host = config['db_host'],
@@ -89,9 +90,12 @@ async def on_command(ctx):  # permissions check
     cur.execute("SELECT command, clearance FROM commands;")
 
     data = cur.fetchone()
-    command_list = dict(zip(data[0], data[1]))
+    try:
+        command_list = dict(zip(data[0], data[1]))
+    except TypeError:
+        pass
 
-    if command_list is [] or ctx.command not in command_list:
+    if ctx.command not in command_list:
         return
     elif command_list[ctx.command] is 'moderator':
         if mod_role not in [str(role) for role in ctx.author.roles]:

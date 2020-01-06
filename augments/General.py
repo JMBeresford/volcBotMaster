@@ -26,7 +26,7 @@ class General(commands.Cog):
 
             cursor = conn.cursor()
 
-            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP guilds BIGINT[]);")
+            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[]);")
 
             cursor.execute('''CREATE TABLE IF NOT EXISTS messages(  id BIGSERIAL PRIMARY KEY,
                                                                     author_id BIGINT,
@@ -46,7 +46,6 @@ class General(commands.Cog):
                 except (Exception, psql.IntegrityError):
                     pass
 
-
             conn.commit()
             conn.close()
 
@@ -60,25 +59,30 @@ class General(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        conn = sql.connect(f'data/{member.guild.id}/stats.db')
+        guild = member.guild
+        conn = psql.connect(user = self.config['db_user'],
+                                password = self.config['db_password'],
+                                host = self.config['db_host'],
+                                port = self.config['db_port'],
+                                dbname = self.config['db_name'])
         cursor = conn.cursor()
 
-        info = (member.id, str(member), 0, member.joined_at)
-
+        info = (member.id, str(member), member.joined_at, guild.id)
+            
         try:
-            cursor.execute( '''INSERT INTO members(id, name, message_count, join_date)
-                            VALUES(?,?,?,?)''', info)
-            conn.commit()
-        except sql.IntegrityError:
-            conn.rollback()
+            cursor.execute( 'INSERT INTO members (id,name) VALUES (%s,%s);', info[0:2])
+            cursor.execute('''  update members set guilds = array_append(
+                                (select guilds from members where name='%s'),
+                                cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,member.id))
+        except (Exception, psql.IntegrityError):
             pass
-        finally:
-            conn.close()
+
+        conn.commit()
+        conn.close()
 
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id == self.client.user.id:
-            print("bot typed")
             return
 
         connection = psql.connect(  user = self.config['db_user'],
@@ -105,45 +109,22 @@ class General(commands.Cog):
     @commands.command()
     async def admins(self, ctx):
         """Lists the Administrators for the current server\n"""
-        guild = ctx.guild
-
-        with sql.connect(f'data/{guild.id}/stats.db') as conn:
-            cursor = conn.cursor()
-
-            cursor.execute("SELECT id FROM administrators")
-
-            data = cursor.fetchall()  # will return a list of tuples that only hold one element
-            data = [admin_id[0] for admin_id in data]  # Makes a list of tuples that holds only one element just a list
-            admin_list = [await self.id_to_name(admin_id, ctx) for admin_id in data]
-
-            msg = "The admins for this server are:\n"
-            for admin in admin_list:
-                msg = f'{msg}{admin}\n'
-
-            await ctx.send(msg)
-
-        conn.close()
+        msg = f"The admins for {ctx.guild} are: \n"
+        admin_role = self.config['admin_role']
+        admin_list = [member for member in ctx.guild.members if admin_role in [str(role) for role in member.roles]]
+        for admin in admin_list:
+            msg = f"{msg}`{str(admin)}`\n"
+        await ctx.send(msg)
 
     @commands.command()
     async def mods(self, ctx):
         """Lists the Moderators for the current server\n"""
-        guild = ctx.guild
-
-        with sql.connect(f'data/{guild.id}/stats.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id FROM moderators")
-
-            data = cursor.fetchall()  # will return a list of tuples that only hold one element
-            data = [mod_id[0] for mod_id in data]  # Makes a list of tuples that holds only one element just a list
-            mod_list = [await self.id_to_name(mod_id, ctx) for mod_id in data]
-
-            msg = "The mods for this server are:\n"
-            for mod in mod_list:
-                msg = f'{msg}{mod}\n'
-
-            await ctx.send(msg)
-
-        conn.close()
+        msg = f"The moderators for {ctx.guild} are: \n"
+        mod_role = self.config['mod_role']
+        mod_list = [member for member in ctx.guild.members if mod_role in [str(role) for role in member.roles]]
+        for mod in mod_list:
+            msg = f"{msg}`{str(mod)}`\n"
+        await ctx.send(msg)
 
 
 
