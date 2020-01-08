@@ -59,8 +59,7 @@ class Graphing(commands.Cog):
                             FROM messages
                             WHERE sent_at
                             <= timestamp 'now' AND
-                            sent_at >= timestamp 'now' - interval '%s days' AND
-                            guild_id = '%s';
+                            sent_at >= timestamp 'now' - interval '%s days'
                             ''', (day_span, ctx.guild.id))
         except (Exception, psql.Error) as error:
             print(error)
@@ -125,11 +124,11 @@ class Graphing(commands.Cog):
         author = ctx.message.author
         bar_width = 0.15
 
-        conn = psql.connect(user = config['db_user'],
-                            password = config['db_password'],
-                            host = config['db_host'],
-                            port = config['db_port'],
-                            dbname = config['db_name'])
+        conn = psql.connect(user = self.config['db_user'],
+                            password = self.config['db_password'],
+                            host = self.config['db_host'],
+                            port = self.config['db_port'],
+                            dbname = self.config['db_name'])
         cursor = conn.cursor()
 
         cursor.execute( "SELECT id, message_count FROM members"
