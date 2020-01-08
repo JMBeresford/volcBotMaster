@@ -59,8 +59,9 @@ class Graphing(commands.Cog):
                             FROM messages
                             WHERE sent_at
                             <= timestamp 'now' AND
-                            sent_at >= timestamp 'now' - interval '%s days'
-                            ''', (day_span,))
+                            sent_at >= timestamp 'now' - interval '%s days' AND
+                            guild_id = '%s';
+                            ''', (day_span, ctx.guild.id))
         except (Exception, psql.Error) as error:
             print(error)
 
