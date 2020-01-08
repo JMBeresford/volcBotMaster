@@ -1,5 +1,5 @@
 from discord.ext import commands
-import sqlite3 as sql
+import psycopg2 as psql
 import logging
 import json
 import os
@@ -75,34 +75,43 @@ async def on_ready():
 async def on_guild_join(guild):
     await new_guild(guild, startup=False)
 
-
+"""
 @client.event
 async def on_command(ctx):  # permissions check
-    guild = ctx.guild
+    command_list = {}
+    conn = psql.connect(user = config['db_user'],
+                            password = config['db_password'],
+                            host = config['db_host'],
+                            port = config['db_port'],
+                            dbname = config['db_name'])
 
-    with sql.connect(f'data/{guild.id}/stats.db') as conn:
-        cursor = conn.cursor()
+    cur = conn.cursor()
 
-        cursor.execute("SELECT command, clearance FROM commands")
-        data = cursor.fetchone()
+    cur.execute("SELECT command, clearance FROM commands;")
+
+    data = cur.fetchone()
+    try:
         command_list = dict(zip(data[0], data[1]))
+    except TypeError:
+        pass
 
-        if command_list is [] or ctx.command not in command_list:
-            return
-        elif command_list[ctx.command] is 'moderator':
-            if mod_role not in [str(role) for role in ctx.author.roles]:
-                ctx.send('You do not have permission to use that command.')
-            else:
-                return
-        elif command_list[ctx.command] is 'administrator':
-            if admin_role not in [str(role) for role in ctx.author.roles]:
-                ctx.send('You do not have permission to use that command.')
-            else:
-                return
+    if ctx.command not in command_list:
+        return
+    elif command_list[ctx.command] is 'moderator':
+        if mod_role not in [str(role) for role in ctx.author.roles]:
+            ctx.send('You do not have permission to use that command.')
         else:
-            pass
+            return
+    elif command_list[ctx.command] is 'administrator':
+        if admin_role not in [str(role) for role in ctx.author.roles]:
+            ctx.send('You do not have permission to use that command.')
+        else:
+            return
+    else:
+        pass
 
     conn.close()
+"""
 
 @client.event
 async def on_command_error(ctx, error):
