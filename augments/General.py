@@ -39,11 +39,11 @@ class General(commands.Cog):
             for member in guild.members:
                 info = (member.id, str(member), member.joined_at, guild.id)
                 try:
-                    cursor.execute( 'INSERT INTO members (id,name) VALUES (%s,%s);', info[0:2])
+                    cursor.execute( 'INSERT INTO members (id,name,join_date) VALUES (%s,%s,%s);', info[0:3])
                     cursor.execute('''  update members set guilds = array_append(
-                                        (select guilds from members where name='%s'),
-                                        cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,member.id))
-                except (Exception, psql.IntegrityError):
+                                        (select guilds from members where id='%(id)s'),
+                                        cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[3]})
+                except (Exception, psql.IntegrityError) as error:
                     pass
 
             conn.commit()
@@ -52,15 +52,16 @@ class General(commands.Cog):
         print(f'\t\tLoaded General augments successfully.\n')
 
     async def id_to_name(self, member_id, ctx):
-        for member in ctx.guild.members:
-            if member.id == int(member_id):
-                return str(member)
-        return 'User Not Found'
+        member = self.client.get_user(member_id)
+        if member == None:
+            return 'User Not Found'
+        else:
+            return str(member)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
         guild = member.guild
-        conn = psql.connect(user = self.config['db_user'],
+        conn = psql.connect(    user = self.config['db_user'],
                                 password = self.config['db_password'],
                                 host = self.config['db_host'],
                                 port = self.config['db_port'],

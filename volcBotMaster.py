@@ -75,7 +75,7 @@ async def on_ready():
 async def on_guild_join(guild):
     await new_guild(guild, startup=False)
 
-
+"""
 @client.event
 async def on_command(ctx):  # permissions check
     command_list = {}
@@ -111,7 +111,7 @@ async def on_command(ctx):  # permissions check
         pass
 
     conn.close()
-
+"""
 
 @client.event
 async def on_command_error(ctx, error):
