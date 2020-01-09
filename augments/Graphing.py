@@ -113,7 +113,7 @@ class Graphing(commands.Cog):
             print(error)
         
         try:
-            await ctx.send( content="This past week's server activity:\n",
+            await ctx.send( content=f"This past {time}'s server activity:\n",
                             file=File(f'data/{ctx.guild.id}/graph.png'))
         except Exception as error:
             print(error)
