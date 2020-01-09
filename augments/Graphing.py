@@ -78,6 +78,8 @@ class Graphing(commands.Cog):
             pad = 20
         else:
             x = [dt.strftime(fmtstr) for dt in rrule(MONTHLY, count=12, dtstart=datetime.now() - relativedelta(months=11))]
+            rotation = 90
+            pad = 25
         y = []
 
         print(x)
