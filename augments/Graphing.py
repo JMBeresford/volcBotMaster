@@ -124,20 +124,13 @@ class Graphing(commands.Cog):
         guild = ctx.guild.id
         author = ctx.message.author
         bar_width = 0.15
+        config = self.config
 
-<<<<<<< HEAD
-        conn = psql.connect(user = self.config['db_user'],
-                            password = self.config['db_password'],
-                            host = self.config['db_host'],
-                            port = self.config['db_port'],
-                            dbname = self.config['db_name'])
-=======
         conn = psql.connect(user = config['db_user'],
                             password = config['db_password'],
                             host = config['db_host'],
                             port = config['db_port'],
                             dbname = config['db_name'])
->>>>>>> 705083c08539ab6d0e3013add68d96f5f628cb2a
         cursor = conn.cursor()
 
         cursor.execute( "SELECT id, message_count FROM members"
