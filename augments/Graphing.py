@@ -140,6 +140,8 @@ class Graphing(commands.Cog):
         data = [id[0] for id in cursor.fetchall()]
 
         for id in data:
+            if ctx.guild.get_member(id) == None:
+                continue
             try:
                 cursor.execute( "UPDATE members "
                                 "SET message_count = (select count(*) FROM messages WHERE author_id = %s) "
