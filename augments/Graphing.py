@@ -135,13 +135,30 @@ class Graphing(commands.Cog):
                             dbname = config['db_name'])
         cursor = conn.cursor()
 
-        cursor.execute( "SELECT id, message_count FROM members"
-                        " ORDER BY message_count DESC LIMIT 10")
+        cursor.execute( "SELECT DISTINCT author_id FROM messages;")
+
+        data = [id[0] for id in cursor.fetchall()]
+
+        for id in data:
+            try:
+                cursor.execute( "UPDATE members "
+                                "SET message_count = (select count(*) FROM messages WHERE author_id = %s) "
+                                "WHERE id = %s", (id, id))
+                conn.commit()
+            except (Exception, psql.Error) as error:
+                print(error)
+        
+        try:
+            cursor.execute( "SELECT message_count, id FROM members "
+                            "ORDER BY message_count DESC LIMIT 10")
+        except (Exception, psql.Error) as error:
+            print(error)
 
         data = cursor.fetchall()
-        users = [await self.id_to_member(user[0], ctx) for user in data[0:10]]
+
+        users = [ctx.guild.get_member(int(user[1])) for user in data]
         names = [user.name for user in users]
-        msg_count = [user[1] for user in data[0:10]]
+        msg_count = [user[0] for user in data]
         conn.commit()
         conn.close()
 

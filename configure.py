@@ -73,7 +73,7 @@ while True: # smirks in evil
 
         cur = conn.cursor()
 
-        cur.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[]);")
+        cur.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[], message_count INT NOT NULL);")
         cur.execute('''CREATE TABLE IF NOT EXISTS messages( id BIGSERIAL PRIMARY KEY,
                                                             author_id BIGINT,
                                                             author_name VARCHAR(255),

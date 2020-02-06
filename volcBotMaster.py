@@ -115,6 +115,7 @@ async def on_command(ctx):  # permissions check
 
 @client.event
 async def on_command_error(ctx, error):
+    print(error)
     if error is commands.errors.MissingRequiredArgument:
         await ctx.send("Syntax Error: Try `?help <command>`")
 
