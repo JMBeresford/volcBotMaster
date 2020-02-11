@@ -135,32 +135,20 @@ class Graphing(commands.Cog):
                             dbname = config['db_name'])
         cursor = conn.cursor()
 
-        cursor.execute( "SELECT DISTINCT author_id FROM messages;")
+        cursor.execute( "SELECT DISTINCT author_id, COUNT(*) msg_count "
+                        "FROM messages WHERE guild_id=%s "
+                        "GROUP BY author_id "
+                        "ORDER BY msg_count "
+                        "DESC LIMIT 10;", (ctx.guild.id,))
 
-        data = [id[0] for id in cursor.fetchall()]
-
-        for id in data:
-            if ctx.guild.get_member(id) == None:
-                continue
-            try:
-                cursor.execute( "UPDATE members "
-                                "SET message_count = (select count(*) FROM messages WHERE author_id = %s) "
-                                "WHERE id = %s", (id, id))
-                conn.commit()
-            except (Exception, psql.Error) as error:
-                print(error)
-        
         try:
-            cursor.execute( "SELECT message_count, id FROM members "
-                            "ORDER BY message_count DESC LIMIT 10")
-        except (Exception, psql.Error) as error:
-            print(error)
+            data = cursor.fetchall()
+        except (Exception, psql.Error) as e:
+            print(e)
 
-        data = cursor.fetchall()
 
-        users = [ctx.guild.get_member(int(user[1])) for user in data]
-        names = [user.name for user in users]
-        msg_count = [user[0] for user in data]
+        names = [ctx.guild.get_member(user[0]) for user in data]
+        msg_count = [user[1] for user in data]
         conn.commit()
         conn.close()
 
@@ -182,7 +170,7 @@ class Graphing(commands.Cog):
                         file=File(f'data/{guild}/graph.png'))
         os.remove(f'data/{guild}/graph.png')
 
-        if author not in users:
+        if author not in names:
             await ctx.send(f"Step it up, {author.mention}, you're not even on there :smirk:")
 
     @commands.command()

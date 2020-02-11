@@ -26,7 +26,7 @@ class General(commands.Cog):
 
             cursor = conn.cursor()
 
-            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[], message_count INT NOT NULL);")
+            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[]);")
 
             cursor.execute('''CREATE TABLE IF NOT EXISTS messages(  id BIGSERIAL PRIMARY KEY,
                                                                     author_id BIGINT,
@@ -37,12 +37,12 @@ class General(commands.Cog):
                                                                     content TEXT);''')
 
             for member in guild.members:
-                info = (member.id, str(member), member.joined_at, 0, guild.id)
+                info = (member.id, str(member), member.joined_at, guild.id)
                 try:
-                    cursor.execute( 'INSERT INTO members (id,name,join_date, message_count) VALUES (%s,%s,%s,%s);', info[0:4])
+                    cursor.execute( 'INSERT INTO members (id,name,join_date) VALUES (%s,%s,%s,%s);', info[0:3])
                     cursor.execute('''  update members set guilds = array_append(
                                         (select guilds from members where id='%(id)s'),
-                                        cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[4]})
+                                        cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[3]})
                 except (Exception, psql.IntegrityError):
                     pass
 
@@ -68,10 +68,10 @@ class General(commands.Cog):
                                 dbname = self.config['db_name'])
         cursor = conn.cursor()
 
-        info = (member.id, str(member), member.joined_at, 0, guild.id)
+        info = (member.id, str(member), member.joined_at, guild.id)
             
         try:
-            cursor.execute( 'INSERT INTO members (id,name, join_date, message_count) VALUES (%s,%s,%s,%s);', info[0:4])
+            cursor.execute( 'INSERT INTO members (id,name, join_date) VALUES (%s,%s,%s);', info[0:3])
             cursor.execute('''  update members set guilds = array_append(
                                 (select guilds from members where name='%s'),
                                 cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,member.id))
