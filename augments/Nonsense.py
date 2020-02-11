@@ -36,6 +36,9 @@ class Nonsense(commands.Cog):
             if target.id == 174439608577294336:
                 shafts[target.id] = f"8{'=' * 31}D"
                 msg += f"{shafts[target.id]}\t<-{target.mention}'s length\n"
+            elif target.id == 232903052334465024:
+                shafts[target.id] = "Your screen is too small for this representation."
+                msg += f"{shafts[target.id]}\t<-{target.mention}'s length\n"
             else:
                 length = target.id % 30
                 shafts[target.id] = f"8{'=' * length}D"
