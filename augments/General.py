@@ -42,7 +42,10 @@ class General(commands.Cog):
                     cursor.execute('''  update members set guilds = array_append(
                                         (select guilds from members where id='%(id)s'),
                                         cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[3]})
-                except (Exception, psql.IntegrityError):
+                except (Exception, psql.Error) as e:
+                    if e == psql.IntegrityError:
+                        pass
+                    print(e)
                     pass
 
             conn.commit()
