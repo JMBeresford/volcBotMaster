@@ -2,7 +2,6 @@ from discord import File
 import json
 from discord.ext import commands
 import psycopg2 as psql
-import sqlite3 as sql
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -58,8 +57,8 @@ class Graphing(commands.Cog):
             curr.execute('''SELECT sent_at
                             FROM messages
                             WHERE sent_at
-                            <= timestamp 'now' AND
-                            sent_at >= timestamp 'now' - interval '%s days' AND
+                            <= TIMESTAMP 'now' AND
+                            sent_at >= TIMESTAMP 'now' - interval '%s days' AND
                             guild_id = '%s';
                             ''', (day_span, ctx.guild.id))
         except (Exception, psql.Error) as error:
@@ -174,37 +173,71 @@ class Graphing(commands.Cog):
             await ctx.send(f"Step it up, {author.mention}, you're not even on there :smirk:")
 
     @commands.command()
-    async def servergrowth(self, ctx, time='year'):  # TODO: make time interchangeable
+    async def servergrowth(self, ctx, time='year'):
         """Graph of new users for current server over last 12 months\n"""
-        date_of = datetime.now()
+        
+        time = time.lower()
+        timeframes = ('week', 'month', 'year')
+        if time not in timeframes:
+            await ctx.send("Please enter a valid timeframe ('week', 'month' 'year').")
+            return
+
+        day_span = 7 if time == 'week' else 31 if time == 'month' else 365
+        before = datetime.today() - relativedelta(days=(day_span - 1))
+        fmtstr = '%a %d' if time != 'year' else '%b %Y'
+
         guild = ctx.guild.id
 
-        conn = sql.connect(f'data/{guild}/stats.db')
-        cursor = conn.cursor()
+        try:
+            connection = psql.connect(user = self.config['db_user'],
+                                            password = self.config['db_password'],
+                                            host = self.config['db_host'],
+                                            port = self.config['db_port'],
+                                            dbname = self.config['db_name'])
+        except (Exception, psql.Error) as error:
+            print(error)
 
-        cursor.execute( "SELECT join_date FROM members"
-                        " WHERE DATE(join_date) BETWEEN DATE('now', '-12 month') AND DATE('now')"
-                        " ORDER BY join_date ASC")
-        data = cursor.fetchall()
-        conn.commit()
-        conn.close()
-        dates = [date_of.fromisoformat(dates[0]) for dates in data]
-        dates = [date_string.strftime('%b-%y') for date_string in dates]
-        before = date_of
-        before -= relativedelta(months=11)
-        x = [dt.strftime('%b-%y') for dt in rrule(MONTHLY, count=12, dtstart=before)]
+        cursor = connection.cursor()
+
+        cursor.execute( "SELECT join_date FROM members "
+                        "WHERE join_date <= TIMESTAMP 'now' "
+                        "AND join_date >= TIMESTAMP 'now' - INTERVAL '%s days' "
+                        "AND %s = ANY (guilds) "
+                        "ORDER BY join_date ASC;", (day_span, guild))
+        try:
+            data = cursor.fetchall()
+        except (Exception, psql.Error) as e:
+            print(e)
+
+        connection.close()
+        
+        dates = [dates[0] for dates in data]
+        dates = [date_string.strftime(fmtstr) for date_string in dates]
+        if time=='week':
+            x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=7, dtstart=before)]
+        elif time=='month':
+            x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=31, dtstart=before)]
+            rotation = 90
+            pad = 20
+        else:
+            x = [dt.strftime(fmtstr) for dt in rrule(MONTHLY, count=12, dtstart=datetime.now() - relativedelta(months=11))]
+            rotation = 90
+            pad = 25
+        
         y = {}
-        for month in x:
-            y[month] = dates.count(month)
+        for date in x:
+            y[date] = dates.count(date)
 
         y = list(y.values())
 
         fig, ax = plt.subplots()
+        ax.plot_date(x,y,fmt='-')
+        ax.set( ylabel="Message Count",
+                title="Server Activity")
+        ax.set_xticklabels(x,rotation=rotation, rotation_mode='anchor')
+        ax.tick_params(axis='x', labelsize=9, pad=pad)
         ax.grid()
-        ax.plot(x, y)
-        ax.tick_params(axis='x', labelsize=7)
-        ax.set( ylabel="Number of New Members",
-                title="Server Growth")
+        ax.autoscale()
 
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
 

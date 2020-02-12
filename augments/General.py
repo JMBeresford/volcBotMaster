@@ -1,4 +1,3 @@
-import sqlite3 as sql
 import json
 import psycopg2 as psql
 from datetime import datetime
