@@ -216,6 +216,7 @@ class Graphing(commands.Cog):
         if time=='week':
             x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=7, dtstart=before)]
             rotation = 0
+            pad = 20
         elif time=='month':
             x = [dt.strftime(fmtstr) for dt in rrule(DAILY, count=31, dtstart=before)]
             rotation = 90
