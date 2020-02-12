@@ -38,7 +38,12 @@ class General(commands.Cog):
             for member in guild.members:
                 info = (member.id, str(member), member.joined_at, guild.id)
                 try:
-                    cursor.execute( 'INSERT INTO members (id,name,join_date) VALUES (%s,%s,%s);', info[0:3])
+                    cursor.execute( 'BEGIN '
+                                        'IF NOT EXISTS (SELECT * FROM members WHERE id = %(id)s)'
+                                        'BEGIN '
+                                            'INSERT INTO members (id,name,join_date) VALUES (%(id)s,%(name)s,%(joined)s)'
+                                        'END'
+                                    'END', {'id':info[0], 'name':info[1], 'joined':info[2]})
                     cursor.execute('''  update members set guilds = array_append(
                                         (select guilds from members where id='%(id)s'),
                                         cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[3]})
