@@ -18,7 +18,8 @@ class Images(commands.Cog):
         print(f'\t\tLoaded Images augments successfully.\n')
 
     @commands.command()
-    async def randomimage(self, ctx):
+    async def getimage(self, ctx, index=-1):
+        '''returns an image with either the given or a random index'''
         connection = psql.connect(  user = self.config['db_user'],
                                     password = self.config['db_password'],
                                     host = self.config['db_host'],
@@ -27,17 +28,26 @@ class Images(commands.Cog):
 
         curr = connection.cursor()
 
-        try:
-            curr.execute('''SELECT * FROM images
-                            ORDER BY random()
-                            LIMIT 1;''')
-        except (Exception, psql.Error) as error:
-            print(error)
-            return
+        if index == -1:
+            try:
+                curr.execute('''SELECT * FROM images
+                                ORDER BY random()
+                                LIMIT 1;''')
+            except (Exception, psql.Error) as error:
+                print(error)
+                return
+
+        else:
+            try:
+                curr.execute('''SELECT * FROM images
+                                WHERE id = %s;''', (index,))
+            except (Exception, psql.Error) as error:
+                print(error)
 
         img = curr.fetchone()
 
         await ctx.send(content=f"Here is image#{img[0]}, posted by {img[2]}:\n {img[1]}",)
+
 
 
 def setup(client):
