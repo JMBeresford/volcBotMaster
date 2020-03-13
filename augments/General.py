@@ -42,6 +42,7 @@ class General(commands.Cog):
                                                                     url VARCHAR(255) NOT NULL, 
                                                                     author_name VARCHAR(255), 
                                                                     author_id BIGINT, 
+                                                                    guild_id BIGINT, 
                                                                     description VARCHAR(255), 
                                                                     size BIGINT, 
                                                                     height INT, 
@@ -124,8 +125,9 @@ class General(commands.Cog):
             for attachment in message.attachments:
                 if attachment.height != None:
                     image_info = (  attachment.url, str(message.author),
-                                    message.author.id, attachment.size,
-                                    attachment.height, attachment.width)
+                                    message.author.id, message.guild.id,
+                                    attachment.size, attachment.height,
+                                    attachment.width)
                                     
                     connection = psql.connect(  user = self.config['db_user'],
                                     password = self.config['db_password'],
@@ -137,9 +139,9 @@ class General(commands.Cog):
 
                     try:
                         curr.execute('''INSERT INTO images
-                                        (url, author_name, author_id, size,
-                                        height, width)
-                                        VALUES (%s,%s,%s,%s,%s,%s)''', image_info)
+                                        (url, author_name, author_id,
+                                        guild_id, size, height, width)
+                                        VALUES (%s,%s,%s,%s,%s,%s,%s)''', image_info)
                     except (Exception, psql.Error) as error:
                         print(error)
 

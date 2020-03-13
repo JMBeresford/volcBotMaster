@@ -37,7 +37,7 @@ class Images(commands.Cog):
 
         img = curr.fetchone()
 
-        await ctx.send(content=f"Here is an image posted by {img[2]}:\n {img[1]}",)
+        await ctx.send(content=f"Here is image#{img[0]}, posted by {img[2]}:\n {img[1]}",)
 
 
 def setup(client):
