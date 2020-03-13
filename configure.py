@@ -81,6 +81,14 @@ while True: # smirks in evil
                                                             guild_id BIGINT,
                                                             channel_id BIGINT,
                                                             content TEXT);''')
+        cur.execute('''CREATE TABLE IF NOT EXISTS images(   id BIGSERIAL PRIMARY KEY, 
+                                                            url VARCHAR(255) NOT NULL, 
+                                                            author_name VARCHAR(255), 
+                                                            author_id BIGINT, 
+                                                            description VARCHAR(255), 
+                                                            size BIGINT, 
+                                                            height INT, 
+                                                            width INT);''')
 
         conn.commit()
 

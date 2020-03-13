@@ -1,6 +1,5 @@
 import discord
 import json
-import sqlite3 as sql
 from discord.ext import commands
 
 """

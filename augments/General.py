@@ -1,6 +1,9 @@
 import json
 import psycopg2 as psql
+import requests
+import shutil
 from datetime import datetime
+from PIL import Image
 import discord
 from discord.ext import commands
 
@@ -34,6 +37,15 @@ class General(commands.Cog):
                                                                     guild_id BIGINT,
                                                                     channel_id BIGINT,
                                                                     content TEXT);''')
+
+            cursor.execute('''CREATE TABLE IF NOT EXISTS images(    id BIGSERIAL PRIMARY KEY, 
+                                                                    url VARCHAR(255) NOT NULL, 
+                                                                    author_name VARCHAR(255), 
+                                                                    author_id BIGINT, 
+                                                                    description VARCHAR(255), 
+                                                                    size BIGINT, 
+                                                                    height INT, 
+                                                                    width INT);''')
 
             for member in guild.members:
                 info = (member.id, str(member), member.joined_at, guild.id)
@@ -107,7 +119,31 @@ class General(commands.Cog):
                         VALUES (%s,%s,%s,%s,%s,%s)''', info)
         except (Exception, psql.Error) as error:
             print("There was an error with the insertion:", error)
-    
+
+        if message.attachments != []:
+            for attachment in message.attachments:
+                if attachment.height != None:
+                    image_info = (  attachment.url, str(message.author),
+                                    message.author.id, attachment.size,
+                                    attachment.height, attachment.width)
+                                    
+                    connection = psql.connect(  user = self.config['db_user'],
+                                    password = self.config['db_password'],
+                                    host = self.config['db_host'],
+                                    port = self.config['db_port'],
+                                    dbname = self.config['db_name'])
+
+                    curr = connection.cursor()
+
+                    try:
+                        curr.execute('''INSERT INTO images
+                                        (url, author_name, author_id, size,
+                                        height, width)
+                                        VALUES (%s,%s,%s,%s,%s,%s)''', image_info)
+                    except (Exception, psql.Error) as error:
+                        print(error)
+
+
         curr.close()
         connection.commit()
         connection.close()
