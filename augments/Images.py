@@ -41,9 +41,11 @@ class Images(commands.Cog):
         elif index < 0:
             try:
                 curr.execute('''SELECT * FROM images
-                                WHERE id = ((SELECT count(*)
-                                FROM images) + %(index)s + 1)
-                                AND guild_id = %(guild_id)s;''', {'index': index, 'guild_id': ctx.guild.id})
+                                WHERE id = (
+                                    (SELECT count(*)
+                                    FROM images WHERE guild_id = %(guild_id)s) 
+                                    + %(index)s + 1)
+                                ''', {'index': index, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
 
