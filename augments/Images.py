@@ -31,8 +31,9 @@ class Images(commands.Cog):
         if index == 0:
             try:
                 curr.execute('''SELECT * FROM images
+                                WHERE guild_id = %(guild_id)s
                                 ORDER BY random()
-                                LIMIT 1;''')
+                                LIMIT 1;''', {'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
                 return
@@ -41,7 +42,8 @@ class Images(commands.Cog):
             try:
                 curr.execute('''SELECT * FROM images
                                 WHERE id = ((SELECT count(*)
-                                FROM images) + %s + 1);''',(index,))
+                                FROM images) + %(index)s + 1)
+                                AND guild_id = %(guild_id)s;''', {'index': index, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
 
