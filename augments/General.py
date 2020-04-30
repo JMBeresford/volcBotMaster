@@ -43,7 +43,7 @@ class General(commands.Cog):
                                                                     author_name VARCHAR(255), 
                                                                     author_id BIGINT, 
                                                                     guild_id BIGINT, 
-                                                                    description VARCHAR(255), 
+                                                                    description VARCHAR(255)[] NOT NULL DEFAULT '{}', 
                                                                     size BIGINT, 
                                                                     height INT, 
                                                                     width INT);''')
