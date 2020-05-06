@@ -150,7 +150,7 @@ class Images(commands.Cog):
                                     WHERE id_sub = %(index)s
                                 );''',
                                 {'idx': index, 'words': words, 'guild_id': ctx.guild.id})
-            except Exception as error:
+            except (Exception, psql.Error) as error:
                 print(error)
             finally:
                 connection.commit()
