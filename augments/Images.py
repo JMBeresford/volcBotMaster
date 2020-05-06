@@ -157,8 +157,12 @@ class Images(commands.Cog):
                 changed = True
 
         try:
-            curr.execute('''SELECT description FROM images
-                            WHERE id = %s;''', [index])
+            curr.execute('''SELECT description FROM (
+                                SELECT ROW_NUMBER() OVER(ORDER BY id) id_sub, description
+                                FROM images
+                                WHERE guild_id = %(guild_id)s
+                            ) AS guild_subset
+                            WHERE id_sub = %(id)s;''', {'id':index, 'guild_id':ctx.guild.id})
         except (Exception, psql.Error) as error:
             print(error)
 
