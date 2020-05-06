@@ -41,17 +41,15 @@ class Images(commands.Cog):
 
         elif index < 0:
             try:
-                curr.execute('''SELECT * FROM images
-                                WHERE id = (
-                                    SELECT min(id) FROM (
-                                        SELECT id FROM (
-                                            SELECT * FROM images
-                                            WHERE guild_id = %(guild_id)s
-                                            ORDER BY id DESC
-                                            ) AS id
-                                        LIMIT (-1 *%(index)s)
-                                    ) AS id
-                                )
+                curr.execute('''SELECT id, url, author_name
+                                FROM (
+                                    SELECT ROW_NUMBER() OVER(ORDER BY id) id, url, author_name
+                                    FROM images
+                                    WHERE guild_id = %(guild_id)s
+                                    ORDER BY id DESC
+                                    LIMIT (-1 *%(index)s)
+                                ) AS reversed_guild_subset
+                                ORDER BY id ASC
                                 ''', {'index': index, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
