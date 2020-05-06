@@ -258,21 +258,24 @@ class Graphing(commands.Cog):
         else:
             roles = targets
         
-        data = {}
-        roles.sort()
+        x = []
+        y = []
+        roles.sort(reverse= True, key=lambda x: len(x.members))
 
         for role in roles:
             if str(role) == '@everyone':
                 continue
-            if len(data.keys()) >= 10:
+            if len(x) >= 10:
                 break
-            data[str(role)] = len(role.members)
+            x.append(str(role))
+            y.append(len(role.members))
+
 
         fig, ax = plt.subplots()
-        x_axis = np.arange(len(data.keys()))
-        ax.bar(x_axis, data.values())
+        x_axis = np.arange(len(x))
+        ax.bar(x_axis, y)
         ax.set_xticks(x_axis)
-        ax.set_xticklabels(data.keys(), rotation = 90)
+        ax.set_xticklabels(x, rotation = 90)
         ax.grid(axis='y')
         ax.autoscale()
 
