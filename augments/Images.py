@@ -138,8 +138,8 @@ class Images(commands.Cog):
 
         if words != []:
             try:
-                curr.execute('''UPDATE images SET description = 
-                                description || %(words)s
+                curr.execute('''UPDATE images SET description = (
+                                description || %(words)s)
                                 WHERE id=(
                                     SELECT id
                                     FROM (
@@ -147,7 +147,7 @@ class Images(commands.Cog):
                                         FROM images
                                         WHERE guild_id = %(guild_id)s
                                     ) AS guild_subset
-                                    WHERE id_sub = %(index)s
+                                    WHERE id_sub = %(idx)s
                                 );''',
                                 {'idx': index, 'words': words, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
