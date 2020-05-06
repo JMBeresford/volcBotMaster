@@ -19,7 +19,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def getimage(self, ctx, index=0):
-        '''returns an image with either the given or a random index'''
+        '''Returns an image with either the given, or a random index'''
         connection = psql.connect(  user = self.config['db_user'],
                                     password = self.config['db_password'],
                                     host = self.config['db_host'],
@@ -30,7 +30,8 @@ class Images(commands.Cog):
 
         if index == 0:
             try:
-                curr.execute('''SELECT * FROM images
+                curr.execute('''SELECT ROW_NUMBER() OVER(ORDER BY id) id, url, author_name
+                                FROM images
                                 WHERE guild_id = %(guild_id)s
                                 ORDER BY random()
                                 LIMIT 1;''', {'guild_id': ctx.guild.id})
@@ -57,9 +58,13 @@ class Images(commands.Cog):
 
         else:
             try:
-                curr.execute('''SELECT * FROM images
+                curr.execute('''SELECT id,url,author_name FROM (
+                                    SELECT ROW_NUMBER() OVER(ORDER BY id) id, url, author_name
+                                    FROM images
+                                    WHERE guild_id = %(guild_id)s
+                                ) AS guild_subset
                                 WHERE id = %(index)s
-                                AND guild_id = %(guild_id)s;''', {'index': index, 'guild_id': ctx.guild.id})
+                                ''', {'index': index, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
 
@@ -67,10 +72,6 @@ class Images(commands.Cog):
 
         if img == None:
             await ctx.send(f"That image does not exist.")
-
-        if img[4] != ctx.guild.id:
-            await ctx.send(f"That image is not of this world...")
-            return
 
         await ctx.send(content=f"Here is image#{img[0]}, posted by {img[2]}:\n {img[1]}",)
 
