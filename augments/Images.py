@@ -42,9 +42,15 @@ class Images(commands.Cog):
             try:
                 curr.execute('''SELECT * FROM images
                                 WHERE id = (
-                                    (SELECT count(*)
-                                    FROM images WHERE guild_id = %(guild_id)s) 
-                                    + %(index)s + 1)
+                                    SELECT min(id) FROM (
+                                        SELECT id FROM (
+                                            SELECT * FROM images
+                                            WHERE guild_id = %(guild_id)s
+                                            ORDER BY id DESC
+                                            ) AS id
+                                        LIMIT (-1 *%(index)s)
+                                    ) AS id
+                                )
                                 ''', {'index': index, 'guild_id': ctx.guild.id})
             except (Exception, psql.Error) as error:
                 print(error)
