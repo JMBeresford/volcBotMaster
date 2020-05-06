@@ -169,7 +169,7 @@ class Images(commands.Cog):
         if changed:
             await ctx.send(f"Description for image#{index} is now {', '.join(curr.fetchone()[0])}")
         else:
-            await ctx.send(f"Image {index} is: {', '.join(curr.fetchone()[0])}.")
+            await ctx.send(f"Image {index} is: {', '.join(curr.fetchone()[0])}")
 
 
 def setup(client):
