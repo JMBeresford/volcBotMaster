@@ -140,8 +140,16 @@ class Images(commands.Cog):
             try:
                 curr.execute('''UPDATE images SET description = 
                                 description || %(words)s
-                                WHERE id=%(idx)s;''',
-                                {'idx': index, 'words': words})
+                                WHERE id=(
+                                    SELECT id
+                                    FROM (
+                                        SELECT ROW_NUMBER() OVER(ORDER BY id) id_sub, id
+                                        FROM images
+                                        WHERE guild_id = %(guild_id)s
+                                    ) AS guild_subset
+                                    WHERE id_sub = %(index)s
+                                );''',
+                                {'idx': index, 'words': words, 'guild_id': ctx.guild.id})
             except Exception as error:
                 print(error)
             finally:
