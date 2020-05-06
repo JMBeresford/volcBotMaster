@@ -122,6 +122,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def describeimage(self,ctx,index=0, *, words=""):
+        changed = False
         if index <= 0:
             await ctx.send(f"Please enter a proper image index.")
 
@@ -135,13 +136,17 @@ class Images(commands.Cog):
 
         words = [word for word in words.split()]
 
-        try:
-            curr.execute('''UPDATE images SET description = (
-                            description || '%(words)s'
-                            ) WHERE id=%(idx)s;''',
-                            {'idx': index, 'words': words})
-        except Exception as error:
-            print(error)
+        if words != []:
+            try:
+                curr.execute('''UPDATE images SET description = 
+                                description || %(words)s
+                                WHERE id=%(idx)s;''',
+                                {'idx': index, 'words': words})
+            except Exception as error:
+                print(error)
+            finally:
+                connection.commit()
+                changed = True
 
         try:
             curr.execute('''SELECT description FROM images
@@ -149,7 +154,11 @@ class Images(commands.Cog):
         except (Exception, psql.Error) as error:
             print(error)
 
-        await ctx.send(f"Description for image#{index} is now {curr.fetchone()}")
+        if changed:
+            await ctx.send(f"Description for image#{index} is now {', '.join(curr.fetchone()[0])}")
+        else:
+            await ctx.send(f"Image {index} is: {', '.join(curr.fetchone()[0])}.")
+
 
 def setup(client):
     client.add_cog(Images(client))

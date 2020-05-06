@@ -86,7 +86,7 @@ while True: # smirks in evil
                                                             author_name VARCHAR(255), 
                                                             author_id BIGINT, 
                                                             guild_id BIGINT, 
-                                                            description VARCHAR(255)[] NOT NULL DEFAULT '{}', 
+                                                            description TEXT[] NOT NULL DEFAULT '{}', 
                                                             size BIGINT, 
                                                             height INT, 
                                                             width INT);''')
