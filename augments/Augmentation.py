@@ -57,7 +57,7 @@ class Augmentation(commands.Cog):
             self.user_augments[aug] = 1
             await self.update_aug_persistence()
 
-    @commands.command()
+    @commands.command(aliases=["deaug","d"])
     async def deaugment(self, ctx, aug):
         """Disables the target augment\n"""
         if await self.is_default(aug):
