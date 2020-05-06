@@ -75,9 +75,8 @@ class Images(commands.Cog):
 
 
     @commands.command()
-    async def countimagesfrom(self,ctx,target: discord.Member):
-        target_id = target.id
-
+    async def countimages(self,ctx, target: discord.Member=None):
+        """Returns the total count of images stored from this server, or a given user."""
         connection = psql.connect(  user = self.config['db_user'],
                                     password = self.config['db_password'],
                                     host = self.config['db_host'],
@@ -87,41 +86,29 @@ class Images(commands.Cog):
         curr = connection.cursor()
 
         try:
-            curr.execute('''SELECT count(*) FROM images
-                            WHERE author_id = %s;''', (target_id,))
+            if target == None:
+                curr.execute('''SELECT count(*) FROM images
+                                WHERE guild_id = %s;''', (ctx.guild.id,))
+                msg = " this server."
+            else:
+                curr.execute('''SELECT count(id) FROM images
+                                WHERE guild_id = %(guild_id)s
+                                AND author_id = %(author_id)s
+                            ''', {'guild_id':ctx.guild.id, 'author_id':target.id})
+                msg = f" {target.mention}"
         except (Exception, psql.Error) as error:
             print(error)
+        finally:
+            count = curr.fetchone()
 
-        count = curr.fetchone()[0]
+            count = (count[0] if count != None else 0)
 
-        await ctx.send(f"`{str(target)}` has sent `{count}` images/videos.")
-
-
-    @commands.command()
-    async def countimages(self,ctx):
-        connection = psql.connect(  user = self.config['db_user'],
-                                    password = self.config['db_password'],
-                                    host = self.config['db_host'],
-                                    port = self.config['db_port'],
-                                    dbname = self.config['db_name'])
-
-        curr = connection.cursor()
-
-        try:
-            curr.execute('''SELECT count(*) FROM images
-                            WHERE guild_id = %s;''', (ctx.guild.id,))
-        except (Exception, psql.Error) as error:
-            print(error)
-
-        count = curr.fetchone()
-
-        count = (count[0] if count != None else 0)
-
-        await ctx.send(f"I have `{count}` images/videos stored from this server.")
+        await ctx.send(f"I have `{count}` images/videos stored from" + msg)
 
 
     @commands.command()
     async def describeimage(self,ctx,index=0, *, words=""):
+        """Returns, or adds to, the description of a given image posted in this server."""
         changed = False
         if index <= 0:
             await ctx.send(f"Please enter a proper image index.")

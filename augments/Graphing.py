@@ -248,5 +248,40 @@ class Graphing(commands.Cog):
         os.remove(f'data/{guild}/graph.png')
 
 
+    @commands.command()
+    async def roledistribution(self, ctx):
+        """Graphs the distribution of roles across members in this server."""
+        targets = ctx.message.role_mentions
+
+        if targets == [] or targets == None:
+            roles = [role for role in ctx.guild.roles]
+        else:
+            roles = targets
+        
+        data = {}
+        roles.sort()
+
+        for role in roles:
+            if str(role) == '@everyone':
+                continue
+            if len(data.keys()) >= 10:
+                break
+            data[str(role)] = len(role.members)
+
+        fig, ax = plt.subplots()
+        x_axis = np.arange(len(data.keys()))
+        ax.bar(x_axis, data.values())
+        ax.set_xticks(x_axis)
+        ax.set_xticklabels(data.keys())
+        ax.grid(axis='y')
+
+        fig.savefig(f"data/{ctx.guild.id}/graph.png")
+
+        await ctx.send( content='The role distribution:',
+                        file=File(f'data/{ctx.guild.id}/graph.png'))
+
+        os.remove(f'data/{ctx.guild.id}/graph.png')
+
+
 def setup(client):
     client.add_cog(Graphing(client))
