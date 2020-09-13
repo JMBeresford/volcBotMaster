@@ -3,6 +3,7 @@ import json
 from discord.ext import commands
 import psycopg2 as psql
 import os
+from matplotlib import use
 import matplotlib.pyplot as plt
 import numpy as np
 from dateutil.relativedelta import relativedelta
@@ -19,6 +20,8 @@ class Graphing(commands.Cog):
         self.config = {}
         with open('config.json') as f:
             self.config = json.load(f)
+
+        use("pdf")
 
     async def id_to_member(self, member_id, ctx):
         for member in ctx.guild.members:
@@ -157,7 +160,7 @@ class Graphing(commands.Cog):
         ax.set_ylabel('Message Count')
         ax.set_title('Top 10 Chatters')
         ax.set_xticks(x_axis)
-        ax.set_xticklabels(names, rotation=90)
+        ax.set_xticklabels(names, rotation=90, fontfamily="Segoe UI Emoji")
         ax.grid(axis='y')
         ax.autoscale()
 
@@ -273,7 +276,7 @@ class Graphing(commands.Cog):
         x_axis = np.arange(len(x))
         ax.bar(x_axis, y)
         ax.set_xticks(x_axis)
-        ax.set_xticklabels(x, rotation = 90)
+        ax.set_xticklabels(x, rotation = 90, fontfamily="Segoe UI Emoji")
         ax.grid(axis='y')
         ax.autoscale()
 
