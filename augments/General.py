@@ -28,35 +28,46 @@ class General(commands.Cog):
 
             cursor = conn.cursor()
 
-            cursor.execute("CREATE TABLE IF NOT EXISTS members(id BIGINT PRIMARY KEY, name VARCHAR(255), join_date TIMESTAMP, guilds BIGINT[]);")
+            cursor.execute( '''CREATE TABLE IF NOT EXISTS
+                            members(id BIGINT PRIMARY KEY,
+                                    name VARCHAR(255),
+                                    join_date TIMESTAMP,
+                                    guilds BIGINT[]);''')
 
-            cursor.execute('''CREATE TABLE IF NOT EXISTS messages(  id BIGSERIAL PRIMARY KEY,
-                                                                    author_id BIGINT,
-                                                                    author_name VARCHAR(255),
-                                                                    sent_at TIMESTAMP,
-                                                                    guild_id BIGINT,
-                                                                    channel_id BIGINT,
-                                                                    content TEXT);''')
+            cursor.execute( '''CREATE TABLE IF NOT EXISTS
+                            messages(   id BIGSERIAL PRIMARY KEY,
+                                        author_id BIGINT,
+                                        author_name VARCHAR(255),
+                                        sent_at TIMESTAMP,
+                                        guild_id BIGINT,
+                                        channel_id BIGINT,
+                                        content TEXT);''')
 
-            cursor.execute('''CREATE TABLE IF NOT EXISTS images(    id BIGSERIAL PRIMARY KEY, 
-                                                                    url VARCHAR(255) NOT NULL, 
-                                                                    author_name VARCHAR(255), 
-                                                                    author_id BIGINT, 
-                                                                    guild_id BIGINT, 
-                                                                    description TEXT[] NOT NULL DEFAULT '{}', 
-                                                                    size BIGINT, 
-                                                                    height INT, 
-                                                                    width INT);''')
+            cursor.execute( '''CREATE TABLE IF NOT EXISTS
+                            images( id BIGSERIAL PRIMARY KEY, 
+                                    url VARCHAR(255) NOT NULL, 
+                                    author_name VARCHAR(255), 
+                                    author_id BIGINT, 
+                                    guild_id BIGINT, 
+                                    description TEXT[] NOT NULL DEFAULT '{}', 
+                                    size BIGINT, 
+                                    height INT, 
+                                    width INT);''')
 
             for member in guild.members:
                 info = (member.id, str(member), member.joined_at, guild.id)
                 try:
-                    cursor.execute( 'INSERT INTO members (id,name,join_date) VALUES (%(id)s,%(name)s,%(joined)s) '
-                                    'ON CONFLICT ON CONSTRAINT members_pkey DO NOTHING',
+                    cursor.execute( '''INSERT INTO members
+                                    (id,name,join_date) VALUES (%(id)s,%(name)s,%(joined)s) 
+                                    ON CONFLICT ON CONSTRAINT members_pkey DO NOTHING''',
                                     {'id':info[0], 'name':info[1], 'joined':info[2]})
-                    cursor.execute('''  update members set guilds = array_append(
-                                        (select guilds from members where id='%(id)s'),
-                                        cast(%(guild)s as BIGINT)) where id=%(id)s;''', {'id': info[0], 'guild': info[3]})
+                    cursor.execute('''  UPDATE members SET guilds = ARRAY_APPEND(
+                                        (SELECT guilds FROM members WHERE id='%(id)s'),
+                                        CAST(%(guild)s as BIGINT)) WHERE id=%(id)s
+                                        AND NOT
+                                            (SELECT guilds FROM members WHERE id='%(id)s')
+                                            @> ARRAY[CAST(%(guild)s as BIGINT)];
+                                        ''', {'id': info[0], 'guild': info[3]})
                 except (Exception, psql.Error) as e:
                     if e == psql.IntegrityError:
                         pass
@@ -88,10 +99,11 @@ class General(commands.Cog):
         info = (member.id, str(member), member.joined_at, guild.id)
             
         try:
-            cursor.execute( 'INSERT INTO members (id,name, join_date) VALUES (%s,%s,%s);', info[0:3])
+            cursor.execute( '''INSERT INTO members (id,name,join_date) VALUES (%s,%s,%s) 
+                            ON CONFLICT ON CONSTRAINT members_pkey DO NOTHING;''', (info[0],info[1],info[2]))
             cursor.execute('''  update members set guilds = array_append(
                                 (select guilds from members where name='%s'),
-                                cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,member.id))
+                                cast(%s as BIGINT)) where name=%s;''', (member.id,guild.id,str(member)))
         except (Exception, psql.Error) as error:
             print(error)
             pass
