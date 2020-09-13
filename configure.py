@@ -1,7 +1,6 @@
 import json
 import os
 import platform
-import psycopg2
 
 os_type = platform.system()
 config = {}
@@ -13,14 +12,51 @@ except:
 else:
     term_size = (0,0)
 
-clear = "clear" if os_type == "Linux" else "cls"
+clear = "cls" if os_type == "Windows" else "clear"
 
 header = '----------volcBotMaster Configuration----------\n\n'
 
 os.system(clear)
 print(header)
 
-print("Welcome to the volcBotMaster configuration script\n\n")
+print("Welcome to the volcBotMaster configuration script\n\nChecking for dependencies...\n")
+
+print("Checking for python module 'discord'...")
+try:
+    import discord
+    print("OK\n")
+except ImportError:
+    print("NOT FOUND\n\nTry 'pip3 install discord' and run configuration again.")
+    print("Go to https://discordpy.readthedocs.io/en/latest/intro.html for further reference.")
+    exit()
+
+print("Checking for python module 'psycopg2'...")
+try:
+    import psycopg2
+    print("OK\n")
+except ImportError:
+    print("NOT FOUND\n\nTry 'pip3 install psycopg2' and run configuration again.")
+    print("Go to https://www.psycopg.org/docs/install.html for further reference.")
+    exit()
+
+print("Checking for python module 'matplotlib'...")
+try:
+    import matplotlib
+    print("OK\n")
+except ImportError:
+    print("NOT FOUND\n\nTry 'pip3 install matplotlib' and run configuration again.")
+    print("Go to https://matplotlib.org/users/installing.html for further reference.")
+    exit()
+
+print("Checking for python module 'requests'...")
+try:
+    import requests
+    print("OK\n")
+except ImportError:
+    print("NOT FOUND\n\nTry 'pip3 install requests' and run configuration again.")
+    exit()
+
+print("Dependencies are met. Proceding with configuration...\n")
 
 config['prefix'] = input("Enter your desired command prefix (!, ?, !!, -, etc): ")
 
@@ -54,8 +90,8 @@ config['token'] = input("Enter your bot token: ")
 
 os.system(clear)
 print(header)
-print(  "This bot uses PostreSQL, please enter the relevant info for your instance.\n"
-        "Note: You are expected to have the database server setup of your own accord.\n\n")
+print(  "This bot uses PostgreSQL, please enter the relevant info for your instance.\n"
+        "Note: You are expected to have the database server setup prior to this configuration.\n\n")
 
 while True: # smirks in evil
     config['db_host'] = input("Enter the host for your Postgres Database: ")

@@ -49,7 +49,7 @@ class General(commands.Cog):
                                                                     width INT);''')
 
             for member in guild.members:
-                info = (member.id, str(member), member.joined_at, guild.id)
+                info = (member.id, str(member).encode('utf-8'), member.joined_at, guild.id)
                 try:
                     cursor.execute( 'INSERT INTO members (id,name,join_date) VALUES (%(id)s,%(name)s,%(joined)s) '
                                     'ON CONFLICT ON CONSTRAINT members_pkey DO NOTHING',
