@@ -1,1 +1,5 @@
 token.json
+config.json
+discord.log
+data/
+augments/__pycache__
