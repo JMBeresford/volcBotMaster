@@ -271,7 +271,7 @@ class Graphing(commands.Cog):
 
         fig, ax = plt.subplots()
         x_axis = np.arange(len(x))
-        y_axis = [_ for _ in range(0,max(y)+1)]
+        y_axis = np.arange(max(y))
         ax.bar(x_axis, y)
         ax.set_xticks(x_axis)
         ax.set_yticks(y_axis)
