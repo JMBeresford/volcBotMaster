@@ -271,10 +271,8 @@ class Graphing(commands.Cog):
 
         fig, ax = plt.subplots()
         x_axis = np.arange(len(x))
-        y_axis = np.arange(max(y))
         ax.bar(x_axis, y)
         ax.set_xticks(x_axis)
-        ax.set_yticks(y_axis)
         ax.set_xticklabels(x, rotation = 90)
         ax.grid(axis='y')
         ax.autoscale()
