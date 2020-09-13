@@ -8,6 +8,7 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY, DAILY
 from datetime import datetime, date
+from math import floor
 
 """The logic for graphing is all implemented here"""
 
@@ -124,7 +125,6 @@ class Graphing(commands.Cog):
         """Graph of top 10 chatters in current server\n"""
         guild = ctx.guild.id
         author = ctx.message.author
-        bar_width = 0.15
         config = self.config
 
         conn = psql.connect(user = config['db_user'],
@@ -153,14 +153,13 @@ class Graphing(commands.Cog):
 
         x_axis = np.arange(len(names))
         fig, ax = plt.subplots()
-        ax.grid(axis='y')
-        ax.bar(x_axis, msg_count, bar_width)
+        ax.bar(x_axis, msg_count)
         ax.set_ylabel('Message Count')
-        ax.set_xmargin(5)
         ax.set_title('Top 10 Chatters')
         ax.set_xticks(x_axis)
-        ax.set_xticklabels(names, rotation=25, rotation_mode='anchor')
-        ax.tick_params(axis='x', labelsize=9, pad=25)
+        ax.set_xticklabels(names, rotation=90)
+        ax.grid(axis='y')
+        ax.autoscale()
 
         # tight option because xtick labels get cut off otherwise, due to rotation
         fig.savefig(f'data/{guild}/graph.png', bbox_inches='tight')
@@ -249,7 +248,7 @@ class Graphing(commands.Cog):
 
 
     @commands.command()
-    async def roledistribution(self, ctx):
+    async def roledistribution(self, ctx, *targets):
         """Graphs the distribution of roles across members in this server."""
         targets = ctx.message.role_mentions
 
@@ -270,11 +269,12 @@ class Graphing(commands.Cog):
             x.append(str(role))
             y.append(len(role.members))
 
-
         fig, ax = plt.subplots()
         x_axis = np.arange(len(x))
+        y_axis = [_ for _ in range(0,max(y)+1)]
         ax.bar(x_axis, y)
         ax.set_xticks(x_axis)
+        ax.set_yticks(y_axis)
         ax.set_xticklabels(x, rotation = 90)
         ax.grid(axis='y')
         ax.autoscale()
