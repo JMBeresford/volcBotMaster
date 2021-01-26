@@ -149,7 +149,7 @@ class Graphing(commands.Cog):
         except (Exception, psql.Error) as e:
             print(e)
 
-        names = [str(ctx.guild.get_member(user[0])) for user in data]
+        names = [ctx.guild.get_member(user[0]) for user in data]
         msg_count = [user[1] for user in data]
         conn.commit()
         conn.close()
