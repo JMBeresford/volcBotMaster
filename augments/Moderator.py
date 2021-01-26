@@ -75,13 +75,17 @@ class Moderator(commands.Cog):
             await ctx.send(f'I can only purge up to 15 messages back, and {amount} is more than 15.')
 
         def target_acquired(msg):   # replace with lambda expression in check below
+            if not target:
+                return True
             return msg.author == target
 
         message_murder = await ctx.message.channel.purge(   
             limit=amount, check=target_acquired,
             before=ctx.message)
 
-        await ctx.send(f"Purged {len(message_murder)} of {target.mention}'s messages.")
+        ctx.message.delete()
+
+        await ctx.send(f"Purged {len(message_murder)} of {target.mention or 'everyone'}'s messages.")
 
     @commands.command()
     async def kick(self, ctx, target: discord.Member, *, because='because reasons'):
