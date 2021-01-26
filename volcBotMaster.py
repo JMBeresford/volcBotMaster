@@ -1,3 +1,4 @@
+from discord import Intents
 from discord.ext import commands
 import psycopg2 as psql
 import logging
@@ -20,7 +21,12 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-client = commands.Bot(command_prefix=config['prefix'])
+intents = Intents.default()
+intents.typing = False
+intents.presences = False
+intents.members = True
+
+client = commands.Bot(command_prefix=config['prefix'], intents=intents)
 def_augments = ['Administrator', 'Moderator', 'Augmentation', 'General']  # default augments
 client.owner_id = config['owner_id']
 mod_role = config['mod_role']

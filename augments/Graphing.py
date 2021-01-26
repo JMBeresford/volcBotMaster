@@ -1,4 +1,4 @@
-from discord import File
+from discord import File, Intents
 import json
 from discord.ext import commands
 import psycopg2 as psql
@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY, DAILY
 from datetime import datetime, date
 from math import floor
+
 
 """The logic for graphing is all implemented here"""
 
@@ -148,8 +149,11 @@ class Graphing(commands.Cog):
         except (Exception, psql.Error) as e:
             print(e)
 
+        for user in data:
+            print(user[0])
 
-        names = [ctx.guild.get_member(user[0]) for user in data]
+        names = [str(ctx.guild.get_member(user[0])) for user in data]
+        print(names)
         msg_count = [user[1] for user in data]
         conn.commit()
         conn.close()
