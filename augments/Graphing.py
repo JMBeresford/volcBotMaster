@@ -36,7 +36,7 @@ class Graphing(commands.Cog):
         time = time.lower()
         timeframes = ('week', 'month', 'year')
         if time not in timeframes:
-            await ctx.send("Please enter a valid timeframe ('week', 'month' 'year').")
+            await ctx.send("Please enter a valid timeframe ('week', 'month', 'year').")
             return
 
         day_span = 7 if time == 'week' else 31 if time == 'month' else 365
@@ -181,7 +181,7 @@ class Graphing(commands.Cog):
         time = time.lower()
         timeframes = ('week', 'month', 'year')
         if time not in timeframes:
-            await ctx.send("Please enter a valid timeframe ('week', 'month' 'year').")
+            await ctx.send("Please enter a valid timeframe ('week', 'month', 'year').")
             return
 
         day_span = 7 if time == 'week' else 31 if time == 'month' else 365
