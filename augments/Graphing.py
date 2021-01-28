@@ -236,8 +236,8 @@ class Graphing(commands.Cog):
 
         fig, ax = plt.subplots()
         ax.plot_date(x,y,fmt='-')
-        ax.set( ylabel="Message Count",
-                title="Server Activity")
+        ax.set( ylabel="New Users",
+                title="Server Growth")
         ax.set_xticklabels(x,rotation=rotation, rotation_mode='anchor')
         ax.tick_params(axis='x', labelsize=9, pad=pad)
         ax.grid()
@@ -278,6 +278,8 @@ class Graphing(commands.Cog):
         ax.set_xticks(x_axis)
         ax.set_xticklabels(x, rotation = 90, fontfamily="Segoe UI Emoji")
         ax.grid(axis='y')
+        ax.set( ylabel="Users",
+                title="Role Distribution")
         ax.autoscale()
 
         fig.savefig(f"data/{ctx.guild.id}/graph.png", bbox_inches = 'tight')
